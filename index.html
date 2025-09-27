@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Screenshot Helper</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-bg: #f8fafc;
+      --secondary-bg: #ffffff;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --radius: 12px;
+      --radius-lg: 16px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary-bg: #0f172a;
+        --secondary-bg: #1e293b;
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #64748b;
+        --border: #334155;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+      background: var(--primary-bg);
+      color: var(--text-primary);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(248, 250, 252, 0.8);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .header {
+        background: rgba(15, 23, 42, 0.8);
+      }
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .settings-btn {
+      background: var(--secondary-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      color: var(--text-secondary);
+    }
+
+    .settings-btn:hover {
+      background: var(--primary-bg);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    /* Main Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        padding: 2rem;
+      }
+      
+      .grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .grid {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--secondary-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .card-full {
+      grid-column: 1 / -1;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--text-primary);
+    }
+
+    /* Upload Section */
+    .upload-area {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .upload-area {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      flex: 1;
+    }
+
+    .file-input {
+      position: absolute;
+      left: -9999px;
+      opacity: 0;
+    }
+
+    .file-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.5rem;
+      background: var(--primary-bg);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-align: center;
+      min-height: 3rem;
+    }
+
+    .file-label:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .file-selected {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.5rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      font-size: 0.875rem;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: var(--accent-hover);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: var(--secondary-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary-bg);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.8125rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    /* Output Box */
+    .output-box {
+      background: var(--primary-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: var(--text-primary);
+      min-height: 120px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+
+    .output-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .output-box::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .output-box::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .output-box::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    .output-placeholder {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Settings Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    .modal {
+      background: var(--secondary-bg);
+      border-radius: var(--radius-lg);
+      max-width: 600px;
+      width: 100%;
+      margin: 2rem auto;
+      box-shadow: var(--shadow-lg);
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: between;
+      align-items: center;
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 0.25rem;
+      border-radius: var(--radius);
+      transition: all 0.2s ease;
+    }
+
+    .modal-close:hover {
+      color: var(--text-primary);
+      background: var(--primary-bg);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--primary-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .range-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .range-input {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .range-input::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .range-value {
+      background: var(--primary-bg);
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      min-width: 3rem;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    /* Loading State */
+    .loading {
+      position: relative;
+      pointer-events: none;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 16px;
+      height: 16px;
+      margin: -8px 0 0 -8px;
+      border: 2px solid transparent;
+      border-top: 2px solid currentColor;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive utilities */
+    .text-sm {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      .modal {
+        margin: 1rem auto;
+      }
+      
+      .modal-body {
+        padding: 1rem;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <span>📸</span>
+        <span>AI Screenshot Helper</span>
+      </div>
+      <button id="settingsBtn" class="settings-btn">
+        <span>⚙️</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card card-full">
+      <h2 class="card-title">
+        <span>📤</span>
+        Upload & Extract
+      </h2>
+      <div class="upload-area">
+        <div class="file-input-wrapper">
+          <input type="file" id="imageUpload" accept="image/*" class="file-input">
+          <label for="imageUpload" class="file-label" id="fileLabel">
+            <span>📁</span>
+            <span>Choose image file</span>
+          </label>
+        </div>
+        <button id="extractBtn" class="btn">
+          <span>🔍</span>
+          Extract Text
+        </button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3 class="card-title">
+          <span>📝</span>
+          Extracted Text
+        </h3>
+        <div id="output" class="output-box">
+          <div class="output-placeholder">Extracted text will appear here...</div>
+        </div>
+        <button onclick="copyText('output')" class="btn btn-secondary">
+          <span>📋</span>
+          Copy
+        </button>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">
+          <span>🤖</span>
+          AI Analysis
+        </h3>
+        <div id="aiResult" class="output-box">
+          <div class="output-placeholder">AI analysis will appear here...</div>
+        </div>
+        <div id="ctaButtons" class="btn-group"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Settings</h2>
+        <button class="modal-close" onclick="toggleSettings()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">🔑 Groq API Key</label>
+          <input type="password" id="apiKeyInput" class="form-input" placeholder="Enter your API key">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">🧠 Model</label>
+          <select id="modelSelect" class="form-input"></select>
+          <div class="text-sm" id="modelInfo">Select a model to see details</div>
+          <button id="loadModelsBtn" class="btn btn-secondary" style="margin-top: 0.5rem;">
+            Load Available Models
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">🌡️ Temperature</label>
+          <div class="range-group">
+            <input type="range" id="tempSlider" min="0" max="2" step="0.1" class="range-input">
+            <div id="tempValue" class="range-value">0.7</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">📏 Max Tokens</label>
+          <input type="number" id="maxTokensInput" min="64" max="4096" class="form-input" placeholder="512">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">💬 System Prompt</label>
+          <textarea id="systemPrompt" class="form-input form-textarea" placeholder="Optional system prompt..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">🎯 Custom Actions</label>
+          <select id="projectSelect" class="form-input" style="margin-bottom: 0.75rem;"></select>
+          <div class="btn-group">
+            <button id="newProjectBtn" class="btn btn-sm">+ New Project</button>
+            <button id="addCtaBtn" class="btn btn-sm btn-secondary">+ Add Action</button>
+            <button id="addWorkflowBtn" class="btn btn-sm btn-secondary">+ Add Workflow</button>
+          </div>
+          <div id="ctaList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Elements
+    const output = document.getElementById('output');
+    const aiResult = document.getElementById('aiResult');
+    const settingsModal = document.getElementById('settingsModal');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const modelSelect = document.getElementById('modelSelect');
+    const tempSlider = document.getElementById('tempSlider');
+    const tempValue = document.getElementById('tempValue');
+    const maxTokensInput = document.getElementById('maxTokensInput');
+    const systemPrompt = document.getElementById('systemPrompt');
+    const projectSelect = document.getElementById('projectSelect');
+    const ctaList = document.getElementById('ctaList');
+    const ctaButtons = document.getElementById('ctaButtons');
+    const fileLabel = document.getElementById('fileLabel');
+
+    let projects = JSON.parse(localStorage.getItem('projects') || '{"default":{"actions":[]}}');
+    let currentProject = localStorage.getItem('currentProject') || 'default';
+
+    function toggleSettings() {
+      const isOpen = settingsModal.style.display === 'block';
+      settingsModal.style.display = isOpen ? 'none' : 'block';
+      if (!isOpen) {
+        renderProjects();
+      }
+    }
+
+    document.getElementById('settingsBtn').addEventListener('click', toggleSettings);
+
+    // Close modal when clicking overlay
+    settingsModal.addEventListener('click', (e) => {
+      if (e.target === settingsModal) {
+        toggleSettings();
+      }
+    });
+
+    // Save & Load settings
+    function saveSettings() {
+      localStorage.setItem('apiKey', apiKeyInput.value);
+      localStorage.setItem('model', modelSelect.value);
+      localStorage.setItem('temperature', tempSlider.value);
+      localStorage.setItem('maxTokens', maxTokensInput.value);
+      localStorage.setItem('systemPrompt', systemPrompt.value);
+      localStorage.setItem('projects', JSON.stringify(projects));
+      localStorage.setItem('currentProject', currentProject);
+    }
+
+    function loadSettings() {
+      apiKeyInput.value = localStorage.getItem('apiKey') || '';
+      modelSelect.value = localStorage.getItem('model') || '';
+      tempSlider.value = localStorage.getItem('temperature') || '0.7';
+      tempValue.textContent = tempSlider.value;
+      maxTokensInput.value = localStorage.getItem('maxTokens') || '512';
+      systemPrompt.value = localStorage.getItem('systemPrompt') || '';
+    }
+
+    loadSettings();
+    
+    tempSlider.addEventListener('input', () => {
+      tempValue.textContent = tempSlider.value;
+      saveSettings();
+    });
+
+    // Save settings on change
+    [apiKeyInput, modelSelect, maxTokensInput, systemPrompt].forEach(input => {
+      input.addEventListener('change', saveSettings);
+    });
+
+    // File upload handling
+    document.getElementById('imageUpload').addEventListener('change', function(e) {
+      if (e.target.files.length > 0) {
+        const fileName = e.target.files[0].name;
+        fileLabel.innerHTML = `<span>✅</span><span>${fileName}</span>`;
+        fileLabel.classList.add('file-selected');
+      } else {
+        fileLabel.innerHTML = '<span>📁</span><span>Choose image file</span>';
+        fileLabel.classList.remove('file-selected');
+      }
+    });
+
+    // OCR with loading state
+    document.getElementById('extractBtn').addEventListener('click', async () => {
+      const file = document.getElementById('imageUpload').files[0];
+      if (!file) { 
+        alert("Please select an image file first"); 
+        return; 
+      }
+      
+      const btn = document.getElementById('extractBtn');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = '<span class="loading"></span>Extracting...';
+      btn.disabled = true;
+      
+      output.innerHTML = '<div style="color: var(--text-muted);">🔍 Analyzing image...</div>';
+      
+      try {
+        const { data: { text } } = await Tesseract.recognize(file, 'eng');
+        output.textContent = text || "No text detected in the image.";
+      } catch (error) {
+        output.innerHTML = '<div style="color: #ef4444;">❌ Error: ' + error.message + '</div>';
+      } finally {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+      }
+    });
+
+    // Copy to clipboard with feedback
+    function copyText(id) {
+      const element = document.getElementById(id);
+      const text = element.textContent;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<span>✅</span>Copied';
+        
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+        }, 2000);
+      }).catch(() => {
+        alert('Failed to copy text');
+      });
+    }
+
+    // Placeholder for additional functions
+    function renderProjects() {
+      console.log('Rendering projects...');
+    }
+  </script>
+</body>
+</html>
