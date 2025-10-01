@@ -10,7 +10,7 @@ Designed for technical teams working with digital signage devices (e.g., Samsung
 
 ---
 
-## 🚀 Features
+## Features
 
 - **OCR (Optical Character Recognition)**  
   - Upload screenshots (error messages, provisioning keys, logs).  
@@ -44,7 +44,7 @@ Designed for technical teams working with digital signage devices (e.g., Samsung
 
 ---
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 - **Frontend:** HTML5, CSS3, JavaScript (no frameworks, single-page app).  
 - **OCR:** [Tesseract.js](https://github.com/naptha/tesseract.js) for client-side text extraction.  
@@ -53,7 +53,7 @@ Designed for technical teams working with digital signage devices (e.g., Samsung
 
 ---
 
-## 🔑 AI Terms (for beginners)
+## AI Terms (for beginners)
 
 - **OCR (Optical Character Recognition):** Extracts text from images.  
 - **LLM (Large Language Model):** AI that understands and generates text.  
@@ -78,7 +78,7 @@ Designed for technical teams working with digital signage devices (e.g., Samsung
 
 ---
 
-## 💡 Example Use Cases
+## Example Use Cases
 
 - **Digital signage support teams:**  
   - Extract error codes from screenshots.  
@@ -110,7 +110,7 @@ Designed for technical teams working with digital signage devices (e.g., Samsung
 
 ---
 
-## ✅ Why This Is Good
+## Why This Is Good
 
 - **Lightweight:** No backend required.  
 - **Flexible:** Users can create their own prompts & workflows.  
