@@ -721,7 +721,7 @@
   const ctaButtons = document.getElementById('ctaButtons');
   const fileLabel = document.getElementById('fileLabel');
 
-  // Default project setup if nothing exists
+  // Default projects with multiple workflows
   let projects = JSON.parse(localStorage.getItem('projects') || "null");
   if (!projects) {
     projects = {
@@ -747,6 +747,66 @@
                 prompt: "Provide a clear formatted explanation and suggest next steps or fixes if applicable.",
                 model: "gemma2-9b-it",
                 temperature: 0.7,
+                maxTokens: 512
+              }
+            ]
+          },
+          {
+            name: "Error Log Analysis",
+            workflow: true,
+            steps: [
+              {
+                prompt: "Check if the text contains an error log. If yes, extract key error codes or messages.",
+                model: "llama-3.1-8b-instant",
+                temperature: 0.2,
+                maxTokens: 256
+              },
+              {
+                prompt: "Explain the error message in plain language and identify potential root causes.",
+                model: "llama-3.3-70b-versatile",
+                temperature: 0.4,
+                maxTokens: 512
+              },
+              {
+                prompt: "Suggest specific next steps or fixes based on the identified error.",
+                model: "gemma2-9b-it",
+                temperature: 0.6,
+                maxTokens: 512
+              }
+            ]
+          },
+          {
+            name: "Translate & Summarize",
+            workflow: true,
+            steps: [
+              {
+                prompt: "Summarize the extracted text in 2–3 sentences.",
+                model: "llama-3.1-8b-instant",
+                temperature: 0.5,
+                maxTokens: 256
+              },
+              {
+                prompt: "Translate the summary into English if it is in another language.",
+                model: "llama-3.3-70b-versatile",
+                temperature: 0.3,
+                maxTokens: 256
+              }
+            ]
+          },
+          {
+            name: "Provisioning Code Validator",
+            workflow: true,
+            steps: [
+              {
+                prompt: "Detect if the text contains a provisioning code. Identify its type (DISE, OurApp, or SignageOS).",
+                model: "llama-3.1-8b-instant",
+                temperature: 0.3,
+                maxTokens: 256
+              },
+              {
+                prompt: "Validate the provisioning code format and explain what it is used for.",
+                model: "gemma2-9b-it",
+                temperature: 0.4,
                 maxTokens: 512
               }
             ]
