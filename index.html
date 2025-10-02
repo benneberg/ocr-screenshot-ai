@@ -721,48 +721,18 @@
   const ctaButtons = document.getElementById('ctaButtons');
   const fileLabel = document.getElementById('fileLabel');
 
-  // Workflow templates (always available)
-  const workflowTemplates = {
-    "Screenshot Management": {
-      workflow: true,
-      steps: [
-        { prompt: "Identify if this is a provisioning code. If yes, determine which service it belongs to (DISE, OurApp, or SignageOS).", model: "llama-3.1-8b-instant", temperature: 0.3, maxTokens: 512 },
-        { prompt: "If not a provisioning code, classify whether the text is logs, media text, or other. If logs, identify type (console, device, software, messages).", model: "llama-3.3-70b-versatile", temperature: 0.5, maxTokens: 512 },
-        { prompt: "Provide a clear formatted explanation and suggest next steps or fixes if applicable.", model: "gemma2-9b-it", temperature: 0.7, maxTokens: 512 }
-      ]
-    },
-    "Error Log Analysis": {
-      workflow: true,
-      steps: [
-        { prompt: "Check if the text contains an error log. If yes, extract key error codes or messages.", model: "llama-3.1-8b-instant", temperature: 0.2, maxTokens: 256 },
-        { prompt: "Explain the error message in plain language and identify potential root causes.", model: "llama-3.3-70b-versatile", temperature: 0.4, maxTokens: 512 },
-        { prompt: "Suggest specific next steps or fixes based on the identified error.", model: "gemma2-9b-it", temperature: 0.6, maxTokens: 512 }
-      ]
-    },
-    "Translate & Summarize": {
-      workflow: true,
-      steps: [
-        { prompt: "Summarize the extracted text in 2–3 sentences.", model: "llama-3.1-8b-instant", temperature: 0.5, maxTokens: 256 },
-        { prompt: "Translate the summary into English if it is in another language.", model: "llama-3.3-70b-versatile", temperature: 0.3, maxTokens: 256 }
-      ]
-    },
-    "Provisioning Code Validator": {
-      workflow: true,
-      steps: [
-        { prompt: "Detect if the text contains a provisioning code. Identify its type (DISE, OurApp, or SignageOS).", model: "llama-3.1-8b-instant", temperature: 0.3, maxTokens: 256 },
-        { prompt: "Validate the provisioning code format and explain what it is used for.", model: "gemma2-9b-it", temperature: 0.4, maxTokens: 512 }
-      ]
-    }
-  };
-
-  // Load or initialize projects
-  let projects = JSON.parse(localStorage.getItem('projects') || "null");
-  if (!projects) {
-    projects = { "default": { actions: [] } };
-  }
+  let projects = JSON.parse(localStorage.getItem('projects') || '{"default":{"actions":[]}}');
   let currentProject = localStorage.getItem('currentProject') || 'default';
+  let availableModels = []; // models fetched from Groq API
 
-  // Save & Load settings
+  function toggleSettings() {
+    const isOpen = settingsModal.style.display === 'block';
+    settingsModal.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) renderProjects();
+  }
+  document.getElementById('settingsBtn').addEventListener('click', toggleSettings);
+  settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) toggleSettings(); });
+
   function saveSettings() {
     localStorage.setItem('apiKey', apiKeyInput.value);
     localStorage.setItem('model', modelSelect.value);
@@ -781,31 +751,12 @@
     maxTokensInput.value = localStorage.getItem('maxTokens') || '512';
     systemPrompt.value = localStorage.getItem('systemPrompt') || '';
   }
-
   loadSettings();
 
-  tempSlider.addEventListener('input', () => {
-    tempValue.textContent = tempSlider.value;
-    saveSettings();
-  });
+  tempSlider.addEventListener('input', () => { tempValue.textContent = tempSlider.value; saveSettings(); });
+  [apiKeyInput, modelSelect, maxTokensInput, systemPrompt].forEach(input => input.addEventListener('change', saveSettings));
 
-  [apiKeyInput, modelSelect, maxTokensInput, systemPrompt].forEach(input => {
-    input.addEventListener('change', saveSettings);
-  });
-
-  // Toggle Settings Modal
-  function toggleSettings() {
-    const isOpen = settingsModal.style.display === 'block';
-    settingsModal.style.display = isOpen ? 'none' : 'block';
-    if (!isOpen) renderProjects();
-  }
-
-  document.getElementById('settingsBtn').addEventListener('click', toggleSettings);
-  settingsModal.addEventListener('click', e => {
-    if (e.target === settingsModal) toggleSettings();
-  });
-
-  // File Upload Handling
+  // File upload
   document.getElementById('imageUpload').addEventListener('change', function(e) {
     if (e.target.files.length > 0) {
       const fileName = e.target.files[0].name;
@@ -817,12 +768,7 @@
     }
   });
 
-  // Mock API function for DISE provisioning
-  function sendDiseProvisioningCode(code) {
-    alert(`✅ DISE provisioning code "${code}" has been sent to pairing service (mock API).`);
-  }
-
-  // OCR and Auto-Workflow Execution
+  // OCR with automatic workflow
   document.getElementById('extractBtn').addEventListener('click', async () => {
     const file = document.getElementById('imageUpload').files[0];
     if (!file) { alert("Please select an image file first"); return; }
@@ -836,23 +782,16 @@
 
     try {
       const { data: { text } } = await Tesseract.recognize(file, 'eng');
-      output.textContent = text || "No text detected in the image.";
+      const extractedText = text || "No text detected in the image.";
+      output.textContent = extractedText;
 
-      // Auto-run all workflows and actions in current project
-      if (projects[currentProject]?.actions?.length) {
-        projects[currentProject].actions.forEach(a => {
-          if (a.workflow) {
-            explainWithAI("", a.steps);
-          } else {
-            explainWithAI(a.prompt);
-          }
-        });
+      // Automatically run all workflows in current project
+      const actions = projects[currentProject]?.actions || [];
+      for (let action of actions) {
+        if (action.workflow) {
+          explainWithAI("", action.steps, extractedText);
+        }
       }
-
-      // Example: automatic DISE provisioning detection (simplified)
-      const diseMatch = text.match(/#\d{3}[a-z]{3}/i);
-      if (diseMatch) sendDiseProvisioningCode(diseMatch[0]);
-
     } catch (error) {
       output.innerHTML = '<div style="color: var(--danger);">❌ Error: ' + error.message + '</div>';
     } finally {
@@ -862,7 +801,7 @@
   });
 
   // AI Call
-  async function explainWithAI(customPrompt = "", workflowSteps = null) {
+  async function explainWithAI(customPrompt = "", workflowSteps = null, inputText = null) {
     saveSettings();
     const apiKey = apiKeyInput.value;
     if (!apiKey) { alert("Please enter API key in settings"); return; }
@@ -870,11 +809,13 @@
     const aiResultElement = document.getElementById('aiResult');
     aiResultElement.innerHTML = '<div style="color: var(--text-muted);">⏳ Asking AI...</div>';
 
-    const system = systemPrompt.value || 
-      "You are a diagnostic assistant for digital signage devices. Identify the text type, explain, and suggest next steps.";
+    const system = systemPrompt.value ||
+      "You are a diagnostic assistant for digital signage devices (like Tizen). " +
+      "Task: 1) Identify what kind of text this is (provisioning key, error, log, config, media, unknown). " +
+      "2) Explain in simple terms. 3) Suggest next steps if relevant.";
 
     let finalOutput = "";
-    let inputText = output.textContent;
+    if (!inputText) inputText = output.textContent;
 
     try {
       if (workflowSteps) {
@@ -899,10 +840,15 @@
           let stepOutput = data.choices?.[0]?.message?.content || "❌ No response";
           finalOutput += `[Step ${i+1}: ${step.prompt}]\n${stepOutput}\n\n`;
           inputText = stepOutput;
+
+          // Example: DISE provisioning auto-action
+          if (/DISE/i.test(stepOutput)) {
+            alert("DISE provisioning code detected → sending to pairing service (mock)");
+          }
         }
         aiResult.textContent = finalOutput.trim();
       } else {
-        const userContent = (customPrompt ? customPrompt + "\n\n" : "") + "Here is extracted text:\n\n" + inputText;
+        const userContent = (customPrompt ? customPrompt + "\n\n" : "") + "Here is extracted text from a screenshot:\n\n" + inputText;
         const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
           headers: { "Authorization": "Bearer " + apiKey, "Content-Type": "application/json" },
@@ -924,7 +870,7 @@
     }
   }
 
-  // Render Projects & CTAs
+  // Render projects and actions
   function renderProjects() {
     projectSelect.innerHTML = "";
     Object.keys(projects).forEach(name => {
@@ -939,7 +885,7 @@
   function renderCtas() {
     ctaList.innerHTML = "";
     ctaButtons.innerHTML = "";
-    const actions = projects[currentProject]?.actions || [];
+    const actions = projects[currentProject].actions;
     actions.forEach((a, i) => {
       const div = document.createElement('div');
       div.className = 'cta-item';
@@ -952,113 +898,162 @@
       div.appendChild(nameInput);
 
       if (!a.workflow) {
+        // Single action
         const promptInput = document.createElement('textarea');
         promptInput.className = 'form-input form-textarea';
-        promptInput.rows = 2; 
-        promptInput.value = a.prompt;
-        promptInput.placeholder = 'Enter prompt for AI';
+        promptInput.rows = 2; promptInput.value = a.prompt; promptInput.placeholder = 'Enter prompt for AI';
         promptInput.style.marginTop = '0.5rem';
         promptInput.oninput = e => { a.prompt = e.target.value; saveSettings(); };
         div.appendChild(promptInput);
+
+        // Model
+        const modelSelectInput = document.createElement('select');
+        availableModels.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m.id; opt.textContent = m.id;
+          if (a.model === m.id) opt.selected = true;
+          modelSelectInput.appendChild(opt);
+        });
+        modelSelectInput.onchange = e => { a.model = e.target.value; saveSettings(); };
+        div.appendChild(modelSelectInput);
+
+        // Temperature
+        const tempInput = document.createElement('input');
+        tempInput.type = 'range'; tempInput.min = 0; tempInput.max = 2; tempInput.step = 0.1;
+        tempInput.value = a.temperature ?? 0.7;
+        tempInput.oninput = e => { a.temperature = parseFloat(e.target.value); saveSettings(); };
+        div.appendChild(tempInput);
+
+        // Max tokens
+        const maxTokensInputEl = document.createElement('input');
+        maxTokensInputEl.type = 'number'; maxTokensInputEl.min = 64; maxTokensInputEl.max = 4096;
+        maxTokensInputEl.value = a.maxTokens ?? 512;
+        maxTokensInputEl.onchange = e => { a.maxTokens = parseInt(e.target.value); saveSettings(); };
+        div.appendChild(maxTokensInputEl);
       } else {
+        // Workflow steps
         a.steps.forEach((step, si) => {
           const stepDiv = document.createElement('div');
           stepDiv.className = 'workflow-step';
+
           const stepLabel = document.createElement('div');
-          stepLabel.textContent = `Step ${si+1}:`;
-          stepLabel.style.fontWeight = '500';
-          stepLabel.style.marginBottom = '0.5rem';
+          stepLabel.textContent = `Step ${si + 1}:`; stepLabel.style.fontWeight = '500'; stepLabel.style.marginBottom = '0.5rem';
           stepDiv.appendChild(stepLabel);
 
           const stepInput = document.createElement('textarea');
-          stepInput.className = 'form-input form-textarea';
-          stepInput.rows = 2; 
-          stepInput.value = step.prompt;
-          stepInput.placeholder = `Enter prompt for step ${si+1}`;
+          stepInput.className = 'form-input form-textarea'; stepInput.rows = 2;
+          stepInput.value = step.prompt; stepInput.placeholder = `Enter prompt for step ${si + 1}`;
           stepInput.oninput = e => { step.prompt = e.target.value; saveSettings(); };
           stepDiv.appendChild(stepInput);
+
+          // Model
+          const modelSelectInput = document.createElement('select');
+          availableModels.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.id; opt.textContent = m.id;
+            if (step.model === m.id) opt.selected = true;
+            modelSelectInput.appendChild(opt);
+          });
+          modelSelectInput.onchange = e => { step.model = e.target.value; saveSettings(); };
+          stepDiv.appendChild(modelSelectInput);
+
+          // Temperature
+          const tempInput = document.createElement('input');
+          tempInput.type = 'range'; tempInput.min = 0; tempInput.max = 2; tempInput.step = 0.1;
+          tempInput.value = step.temperature ?? 0.7;
+          tempInput.oninput = e => { step.temperature = parseFloat(e.target.value); saveSettings(); };
+          stepDiv.appendChild(tempInput);
+
+          // Max tokens
+          const maxTokensInputEl = document.createElement('input');
+          maxTokensInputEl.type = 'number'; maxTokensInputEl.min = 64; maxTokensInputEl.max = 4096;
+          maxTokensInputEl.value = step.maxTokens ?? 512;
+          maxTokensInputEl.onchange = e => { step.maxTokens = parseInt(e.target.value); saveSettings(); };
+          stepDiv.appendChild(maxTokensInputEl);
 
           div.appendChild(stepDiv);
         });
       }
 
+      // Controls
       const controlsDiv = document.createElement('div');
       controlsDiv.className = 'cta-controls';
-      ['▲','▼','🗑️'].forEach((symbol, idx) => {
-        const btn = document.createElement('button');
-        btn.textContent = symbol;
-        btn.className = idx === 2 ? "btn btn-xs btn-danger" : "btn btn-xs btn-secondary";
-        btn.onclick = () => {
-          if(symbol==="▲" && i>0){ [actions[i-1],actions[i]]=[actions[i],actions[i-1]]; saveSettings(); renderCtas(); }
-          if(symbol==="▼" && i<actions.length-1){ [actions[i+1],actions[i]]=[actions[i],actions[i+1]]; saveSettings(); renderCtas(); }
-          if(symbol==="🗑️" && confirm("Delete this action?")){ actions.splice(i,1); saveSettings(); renderCtas(); }
-        };
-        controlsDiv.appendChild(btn);
-      });
+
+      const upBtn = document.createElement('button');
+      upBtn.textContent = "▲"; upBtn.className = "btn btn-xs btn-secondary";
+      upBtn.onclick = () => { if (i > 0) { [actions[i-1], actions[i]] = [actions[i], actions[i-1]]; saveSettings(); renderCtas(); } };
+      const downBtn = document.createElement('button');
+      downBtn.textContent = "▼"; downBtn.className = "btn btn-xs btn-secondary";
+      downBtn.onclick = () => { if (i < actions.length-1) { [actions[i+1], actions[i]] = [actions[i], actions[i+1]]; saveSettings(); renderCtas(); } };
+      const delBtn = document.createElement('button');
+      delBtn.textContent = "🗑️"; delBtn.className = "btn btn-xs btn-danger";
+      delBtn.onclick = () => { if (confirm('Delete this action?')) { actions.splice(i,1); saveSettings(); renderCtas(); } };
+      controlsDiv.appendChild(upBtn); controlsDiv.appendChild(downBtn); controlsDiv.appendChild(delBtn);
       div.appendChild(controlsDiv);
       ctaList.appendChild(div);
 
-      const btnMain = document.createElement('button');
-      btnMain.className = "btn cta-btn";
-      btnMain.textContent = a.name;
-      btnMain.onclick = () => a.workflow ? explainWithAI("", a.steps) : explainWithAI(a.prompt);
-      ctaButtons.appendChild(btnMain);
+      // Main CTA buttons
+      const btn = document.createElement('button');
+      btn.className = "btn cta-btn"; btn.textContent = a.name;
+      if (a.workflow) btn.onclick = () => explainWithAI("", a.steps);
+      else btn.onclick = () => explainWithAI(a.prompt, [a]);
+      ctaButtons.appendChild(btn);
     });
   }
 
-  // Event Listeners for Projects, CTA, Workflow Templates
+  // Add new CTA / workflow
+  document.getElementById('addCtaBtn').addEventListener('click', () => {
+    projects[currentProject].actions.push({ name: "New Action", prompt: "Enter prompt here", model: modelSelect.value, temperature: 0.7, maxTokens: 512 });
+    saveSettings(); renderCtas();
+  });
+  document.getElementById('addWorkflowBtn').addEventListener('click', () => {
+    projects[currentProject].actions.push({
+      name: "New Workflow", workflow: true,
+      steps: [{ prompt: "First step", model: modelSelect.value, temperature: 0.7, maxTokens: 512 }]
+    });
+    saveSettings(); renderCtas();
+  });
+
+  // New Project
   document.getElementById('newProjectBtn').addEventListener('click', () => {
     const name = prompt("New project name:");
-    if (name && !projects[name]) { projects[name] = { actions: [] }; currentProject=name; saveSettings(); renderProjects(); }
+    if (name && !projects[name]) { projects[name] = { actions: [] }; currentProject = name; saveSettings(); renderProjects(); }
   });
+  projectSelect.addEventListener('change', (e) => { currentProject = e.target.value; saveSettings(); renderCtas(); });
 
-  projectSelect.addEventListener('change', e => { currentProject=e.target.value; saveSettings(); renderCtas(); });
-
-  document.getElementById('addCtaBtn').addEventListener('click', () => { projects[currentProject].actions.push({ name: "New Action", prompt: "Enter prompt here" }); saveSettings(); renderCtas(); });
-  document.getElementById('addWorkflowBtn').addEventListener('click', () => { projects[currentProject].actions.push({ name: "New Workflow", workflow:true, steps:[{prompt:"First step"},{prompt:"Second step"}] }); saveSettings(); renderCtas(); });
-
-  document.getElementById('addTemplateBtn')?.addEventListener('click', () => {
-    const names = Object.keys(workflowTemplates);
-    const choice = prompt("Choose a template:\n" + names.join("\n"));
-    if (choice && workflowTemplates[choice]) {
-      projects[currentProject].actions.push({ name: choice, ...workflowTemplates[choice] });
-      saveSettings();
-      renderCtas();
-    }
-  });
-
-  // Load Models
+  // Load models
   document.getElementById('loadModelsBtn').addEventListener('click', async () => {
-    const apiKey = apiKeyInput.value;
-    if (!apiKey) { alert("Please enter API key"); return; }
-
-    const btn = document.getElementById('loadModelsBtn');
-    const originalText = btn.textContent;
-    btn.innerHTML = '<span class="loading"></span>Loading...'; btn.disabled=true;
+    const apiKey = apiKeyInput.value; if (!apiKey) { alert("Please enter API key"); return; }
+    const btn = document.getElementById('loadModelsBtn'); const originalText = btn.textContent;
+    btn.innerHTML = '<span class="loading"></span>Loading...'; btn.disabled = true;
 
     try {
-      const res = await fetch("https://api.groq.com/openai/v1/models", { headers:{ "Authorization":"Bearer "+apiKey } });
+      const res = await fetch("https://api.groq.com/openai/v1/models", { headers: { "Authorization": "Bearer " + apiKey } });
       const data = await res.json();
+      availableModels = data.data || [];
       modelSelect.innerHTML = "";
-      if(data.data){ data.data.forEach(m=>{ const opt=document.createElement('option'); opt.value=m.id; opt.textContent=m.id; modelSelect.appendChild(opt); }); }
-      document.getElementById('modelInfo').textContent="💡 Tip: 'instant' models for quick answers, 'instruct' for reasoning, 'large' for long context.";
+      availableModels.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = m.id; modelSelect.appendChild(opt); });
+      document.getElementById('modelInfo').textContent = "💡 Tip: 'instant' models for quick answers, 'instruct' for reasoning, 'large' for long context.";
       saveSettings();
-    } catch(e){ alert('Error loading models: '+e.message); }
-    finally{ btn.textContent=originalText; btn.disabled=false; }
+      renderCtas(); // populate all step selects
+    } catch (error) { alert('Error loading models: ' + error.message); }
+    finally { btn.textContent = originalText; btn.disabled = false; }
   });
 
   // Copy to clipboard
   function copyText(id) {
     const element = document.getElementById(id);
     const text = element.textContent;
-    navigator.clipboard.writeText(text).then(()=>{
-      const btn=event.target.closest('button');
-      const originalHTML=btn.innerHTML;
-      btn.innerHTML='<span>✅</span>Copied';
-      setTimeout(()=>{ btn.innerHTML=originalHTML; },2000);
-    }).catch(()=>{ alert('Failed to copy text'); });
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = event.target.closest('button'); const originalHTML = btn.innerHTML;
+      btn.innerHTML = '<span>✅</span>Copied';
+      setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
+    }).catch(() => { alert('Failed to copy text'); });
   }
 
-  // Initialize
   renderProjects();
 </script>
+</body
+</htm>  
+  >
+  
