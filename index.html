@@ -721,116 +721,48 @@
   const ctaButtons = document.getElementById('ctaButtons');
   const fileLabel = document.getElementById('fileLabel');
 
-  // Default projects with multiple workflows
+  // Workflow templates (always available)
+  const workflowTemplates = {
+    "Screenshot Management": {
+      workflow: true,
+      steps: [
+        { prompt: "Identify if this is a provisioning code. If yes, determine which service it belongs to (DISE, OurApp, or SignageOS).", model: "llama-3.1-8b-instant", temperature: 0.3, maxTokens: 512 },
+        { prompt: "If not a provisioning code, classify whether the text is logs, media text, or other. If logs, identify type (console, device, software, messages).", model: "llama-3.3-70b-versatile", temperature: 0.5, maxTokens: 512 },
+        { prompt: "Provide a clear formatted explanation and suggest next steps or fixes if applicable.", model: "gemma2-9b-it", temperature: 0.7, maxTokens: 512 }
+      ]
+    },
+    "Error Log Analysis": {
+      workflow: true,
+      steps: [
+        { prompt: "Check if the text contains an error log. If yes, extract key error codes or messages.", model: "llama-3.1-8b-instant", temperature: 0.2, maxTokens: 256 },
+        { prompt: "Explain the error message in plain language and identify potential root causes.", model: "llama-3.3-70b-versatile", temperature: 0.4, maxTokens: 512 },
+        { prompt: "Suggest specific next steps or fixes based on the identified error.", model: "gemma2-9b-it", temperature: 0.6, maxTokens: 512 }
+      ]
+    },
+    "Translate & Summarize": {
+      workflow: true,
+      steps: [
+        { prompt: "Summarize the extracted text in 2–3 sentences.", model: "llama-3.1-8b-instant", temperature: 0.5, maxTokens: 256 },
+        { prompt: "Translate the summary into English if it is in another language.", model: "llama-3.3-70b-versatile", temperature: 0.3, maxTokens: 256 }
+      ]
+    },
+    "Provisioning Code Validator": {
+      workflow: true,
+      steps: [
+        { prompt: "Detect if the text contains a provisioning code. Identify its type (DISE, OurApp, or SignageOS).", model: "llama-3.1-8b-instant", temperature: 0.3, maxTokens: 256 },
+        { prompt: "Validate the provisioning code format and explain what it is used for.", model: "gemma2-9b-it", temperature: 0.4, maxTokens: 512 }
+      ]
+    }
+  };
+
+  // Load or initialize projects
   let projects = JSON.parse(localStorage.getItem('projects') || "null");
   if (!projects) {
-    projects = {
-      "default": {
-        actions: [
-          {
-            name: "Screenshot Management",
-            workflow: true,
-            steps: [
-              {
-                prompt: "Identify if this is a provisioning code. If yes, determine which service it belongs to (DISE, OurApp, or SignageOS).",
-                model: "llama-3.1-8b-instant",
-                temperature: 0.3,
-                maxTokens: 512
-              },
-              {
-                prompt: "If not a provisioning code, classify whether the text is logs, media text, or other. If logs, identify type (console, device, software, messages).",
-                model: "llama-3.3-70b-versatile",
-                temperature: 0.5,
-                maxTokens: 512
-              },
-              {
-                prompt: "Provide a clear formatted explanation and suggest next steps or fixes if applicable.",
-                model: "gemma2-9b-it",
-                temperature: 0.7,
-                maxTokens: 512
-              }
-            ]
-          },
-          {
-            name: "Error Log Analysis",
-            workflow: true,
-            steps: [
-              {
-                prompt: "Check if the text contains an error log. If yes, extract key error codes or messages.",
-                model: "llama-3.1-8b-instant",
-                temperature: 0.2,
-                maxTokens: 256
-              },
-              {
-                prompt: "Explain the error message in plain language and identify potential root causes.",
-                model: "llama-3.3-70b-versatile",
-                temperature: 0.4,
-                maxTokens: 512
-              },
-              {
-                prompt: "Suggest specific next steps or fixes based on the identified error.",
-                model: "gemma2-9b-it",
-                temperature: 0.6,
-                maxTokens: 512
-              }
-            ]
-          },
-          {
-            name: "Translate & Summarize",
-            workflow: true,
-            steps: [
-              {
-                prompt: "Summarize the extracted text in 2–3 sentences.",
-                model: "llama-3.1-8b-instant",
-                temperature: 0.5,
-                maxTokens: 256
-              },
-              {
-                prompt: "Translate the summary into English if it is in another language.",
-                model: "llama-3.3-70b-versatile",
-                temperature: 0.3,
-                maxTokens: 256
-              }
-            ]
-          },
-          {
-            name: "Provisioning Code Validator",
-            workflow: true,
-            steps: [
-              {
-                prompt: "Detect if the text contains a provisioning code. Identify its type (DISE, OurApp, or SignageOS).",
-                model: "llama-3.1-8b-instant",
-                temperature: 0.3,
-                maxTokens: 256
-              },
-              {
-                prompt: "Validate the provisioning code format and explain what it is used for.",
-                model: "gemma2-9b-it",
-                temperature: 0.4,
-                maxTokens: 512
-              }
-            ]
-          }
-        ]
-      }
-    };
+    projects = { "default": { actions: [] } };
   }
   let currentProject = localStorage.getItem('currentProject') || 'default';
 
-  function toggleSettings() {
-    const isOpen = settingsModal.style.display === 'block';
-    settingsModal.style.display = isOpen ? 'none' : 'block';
-    if (!isOpen) {
-      renderProjects();
-    }
-  }
-
-  document.getElementById('settingsBtn').addEventListener('click', toggleSettings);
-
-  settingsModal.addEventListener('click', (e) => {
-    if (e.target === settingsModal) toggleSettings();
-  });
-
+  // Save & Load settings
   function saveSettings() {
     localStorage.setItem('apiKey', apiKeyInput.value);
     localStorage.setItem('model', modelSelect.value);
@@ -861,7 +793,19 @@
     input.addEventListener('change', saveSettings);
   });
 
-  // File handling
+  // Toggle Settings Modal
+  function toggleSettings() {
+    const isOpen = settingsModal.style.display === 'block';
+    settingsModal.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) renderProjects();
+  }
+
+  document.getElementById('settingsBtn').addEventListener('click', toggleSettings);
+  settingsModal.addEventListener('click', e => {
+    if (e.target === settingsModal) toggleSettings();
+  });
+
+  // File Upload Handling
   document.getElementById('imageUpload').addEventListener('change', function(e) {
     if (e.target.files.length > 0) {
       const fileName = e.target.files[0].name;
@@ -873,7 +817,12 @@
     }
   });
 
-  // OCR
+  // Mock API function for DISE provisioning
+  function sendDiseProvisioningCode(code) {
+    alert(`✅ DISE provisioning code "${code}" has been sent to pairing service (mock API).`);
+  }
+
+  // OCR and Auto-Workflow Execution
   document.getElementById('extractBtn').addEventListener('click', async () => {
     const file = document.getElementById('imageUpload').files[0];
     if (!file) { alert("Please select an image file first"); return; }
@@ -888,7 +837,22 @@
     try {
       const { data: { text } } = await Tesseract.recognize(file, 'eng');
       output.textContent = text || "No text detected in the image.";
-      detectProvisioning(text); // auto trigger check
+
+      // Auto-run all workflows and actions in current project
+      if (projects[currentProject]?.actions?.length) {
+        projects[currentProject].actions.forEach(a => {
+          if (a.workflow) {
+            explainWithAI("", a.steps);
+          } else {
+            explainWithAI(a.prompt);
+          }
+        });
+      }
+
+      // Example: automatic DISE provisioning detection (simplified)
+      const diseMatch = text.match(/#\d{3}[a-z]{3}/i);
+      if (diseMatch) sendDiseProvisioningCode(diseMatch[0]);
+
     } catch (error) {
       output.innerHTML = '<div style="color: var(--danger);">❌ Error: ' + error.message + '</div>';
     } finally {
@@ -897,37 +861,17 @@
     }
   });
 
-  // Provisioning detection
-  function detectProvisioning(text) {
-    const diseMatch = text.match(/#[0-9a-z]{3,10}/i);
-    const signageOSMatch = text.match(/[A-Za-z]+-\d{4,}/);
-    const genericMatch = text.match(/\d{3}-\d{3}/);
-
-    if (diseMatch) {
-      alert("📡 DISE provisioning code sent: " + diseMatch[0]);
-      mockApiSend("dise", diseMatch[0]);
-    } else if (signageOSMatch) {
-      alert("📡 SignageOS provisioning code detected: " + signageOSMatch[0]);
-      mockApiSend("signageos", signageOSMatch[0]);
-    } else if (genericMatch) {
-      alert("📡 Generic provisioning code: " + genericMatch[0]);
-      mockApiSend("generic", genericMatch[0]);
-    }
-  }
-  function mockApiSend(service, code) {
-    console.log("Mock API: Sending", code, "to", service);
-  }
-
-  // AI
+  // AI Call
   async function explainWithAI(customPrompt = "", workflowSteps = null) {
     saveSettings();
     const apiKey = apiKeyInput.value;
     if (!apiKey) { alert("Please enter API key in settings"); return; }
 
-    aiResult.innerHTML = '<div style="color: var(--text-muted);">⏳ Asking AI...</div>';
+    const aiResultElement = document.getElementById('aiResult');
+    aiResultElement.innerHTML = '<div style="color: var(--text-muted);">⏳ Asking AI...</div>';
 
-    const system = systemPrompt.value ||
-      "You are a diagnostic assistant for digital signage devices. Task: 1) Identify type of text (provisioning key, error, log, config, unknown). 2) Explain simply. 3) Suggest next steps.";
+    const system = systemPrompt.value || 
+      "You are a diagnostic assistant for digital signage devices. Identify the text type, explain, and suggest next steps.";
 
     let finalOutput = "";
     let inputText = output.textContent;
@@ -980,7 +924,7 @@
     }
   }
 
-  // CTA Rendering
+  // Render Projects & CTAs
   function renderProjects() {
     projectSelect.innerHTML = "";
     Object.keys(projects).forEach(name => {
@@ -995,7 +939,7 @@
   function renderCtas() {
     ctaList.innerHTML = "";
     ctaButtons.innerHTML = "";
-    const actions = projects[currentProject].actions;
+    const actions = projects[currentProject]?.actions || [];
     actions.forEach((a, i) => {
       const div = document.createElement('div');
       div.className = 'cta-item';
@@ -1010,7 +954,7 @@
       if (!a.workflow) {
         const promptInput = document.createElement('textarea');
         promptInput.className = 'form-input form-textarea';
-        promptInput.rows = 2;
+        promptInput.rows = 2; 
         promptInput.value = a.prompt;
         promptInput.placeholder = 'Enter prompt for AI';
         promptInput.style.marginTop = '0.5rem';
@@ -1020,165 +964,101 @@
         a.steps.forEach((step, si) => {
           const stepDiv = document.createElement('div');
           stepDiv.className = 'workflow-step';
-
           const stepLabel = document.createElement('div');
-          stepLabel.textContent = `Step ${si + 1}:`;
+          stepLabel.textContent = `Step ${si+1}:`;
+          stepLabel.style.fontWeight = '500';
+          stepLabel.style.marginBottom = '0.5rem';
           stepDiv.appendChild(stepLabel);
 
           const stepInput = document.createElement('textarea');
           stepInput.className = 'form-input form-textarea';
-          stepInput.rows = 2;
+          stepInput.rows = 2; 
           stepInput.value = step.prompt;
-          stepInput.placeholder = `Enter prompt for step ${si + 1}`;
+          stepInput.placeholder = `Enter prompt for step ${si+1}`;
           stepInput.oninput = e => { step.prompt = e.target.value; saveSettings(); };
           stepDiv.appendChild(stepInput);
 
-          const modelSel = document.createElement('select');
-          modelSel.className = 'form-input';
-          [...modelSelect.options].forEach(opt => {
-            let o = opt.cloneNode(true);
-            if (o.value === step.model) o.selected = true;
-            modelSel.appendChild(o);
-          });
-          modelSel.onchange = e => { step.model = e.target.value; saveSettings(); };
-          stepDiv.appendChild(modelSel);
-
-          const tempInput = document.createElement('input');
-          tempInput.type = "number"; tempInput.step = "0.1"; tempInput.min = "0"; tempInput.max = "2";
-          tempInput.value = step.temperature ?? 0.7;
-          tempInput.className = "form-input inline-input";
-          tempInput.oninput = e => { step.temperature = parseFloat(e.target.value); saveSettings(); };
-          stepDiv.appendChild(tempInput);
-
-          const tokInput = document.createElement('input');
-          tokInput.type = "number"; tokInput.value = step.maxTokens ?? 512;
-          tokInput.className = "form-input inline-input";
-          tokInput.oninput = e => { step.maxTokens = parseInt(e.target.value); saveSettings(); };
-          stepDiv.appendChild(tokInput);
-
-          const delStepBtn = document.createElement('button');
-          delStepBtn.textContent = "🗑️ Step";
-          delStepBtn.className = "btn btn-xs btn-danger";
-          delStepBtn.onclick = () => { a.steps.splice(si, 1); saveSettings(); renderCtas(); };
-          stepDiv.appendChild(delStepBtn);
-
           div.appendChild(stepDiv);
         });
-
-        const addStepBtn = document.createElement('button');
-        addStepBtn.textContent = "+ Add Step";
-        addStepBtn.className = "btn btn-xs btn-secondary";
-        addStepBtn.onclick = () => {
-          a.steps.push({ prompt: "New step", model: modelSelect.value, temperature: 0.7, maxTokens: 512 });
-          saveSettings(); renderCtas();
-        };
-        div.appendChild(addStepBtn);
       }
 
       const controlsDiv = document.createElement('div');
       controlsDiv.className = 'cta-controls';
-
-      const upBtn = document.createElement('button');
-      upBtn.textContent = "▲"; upBtn.className = "btn btn-xs btn-secondary";
-      upBtn.onclick = () => { if (i > 0) { [actions[i-1], actions[i]] = [actions[i], actions[i-1]]; saveSettings(); renderCtas(); } };
-
-      const downBtn = document.createElement('button');
-      downBtn.textContent = "▼"; downBtn.className = "btn btn-xs btn-secondary";
-      downBtn.onclick = () => { if (i < actions.length-1) { [actions[i+1], actions[i]] = [actions[i], actions[i+1]]; saveSettings(); renderCtas(); } };
-
-      const delBtn = document.createElement('button');
-      delBtn.textContent = "🗑️"; delBtn.className = "btn btn-xs btn-danger";
-      delBtn.onclick = () => { if (confirm('Delete this action?')) { actions.splice(i,1); saveSettings(); renderCtas(); } };
-
-      controlsDiv.appendChild(upBtn);
-      controlsDiv.appendChild(downBtn);
-      controlsDiv.appendChild(delBtn);
+      ['▲','▼','🗑️'].forEach((symbol, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = symbol;
+        btn.className = idx === 2 ? "btn btn-xs btn-danger" : "btn btn-xs btn-secondary";
+        btn.onclick = () => {
+          if(symbol==="▲" && i>0){ [actions[i-1],actions[i]]=[actions[i],actions[i-1]]; saveSettings(); renderCtas(); }
+          if(symbol==="▼" && i<actions.length-1){ [actions[i+1],actions[i]]=[actions[i],actions[i+1]]; saveSettings(); renderCtas(); }
+          if(symbol==="🗑️" && confirm("Delete this action?")){ actions.splice(i,1); saveSettings(); renderCtas(); }
+        };
+        controlsDiv.appendChild(btn);
+      });
       div.appendChild(controlsDiv);
       ctaList.appendChild(div);
 
-      const btn = document.createElement('button');
-      btn.className = "btn cta-btn";
-      btn.textContent = a.name;
-      btn.onclick = () => a.workflow ? explainWithAI("", a.steps) : explainWithAI(a.prompt);
-      ctaButtons.appendChild(btn);
+      const btnMain = document.createElement('button');
+      btnMain.className = "btn cta-btn";
+      btnMain.textContent = a.name;
+      btnMain.onclick = () => a.workflow ? explainWithAI("", a.steps) : explainWithAI(a.prompt);
+      ctaButtons.appendChild(btnMain);
     });
   }
 
-  // Adders
-  document.getElementById('addCtaBtn').addEventListener('click', () => {
-    projects[currentProject].actions.push({ name: "New Action", prompt: "Enter prompt here" });
-    saveSettings(); renderCtas();
-  });
-
-  document.getElementById('addWorkflowBtn').addEventListener('click', () => {
-    projects[currentProject].actions.push({
-      name: "New Workflow", workflow: true, steps: [{ prompt: "First step", model: modelSelect.value, temperature: 0.7, maxTokens: 512 }]
-    });
-    saveSettings(); renderCtas();
-  });
-
+  // Event Listeners for Projects, CTA, Workflow Templates
   document.getElementById('newProjectBtn').addEventListener('click', () => {
     const name = prompt("New project name:");
-    if (name && !projects[name]) {
-      projects[name] = { actions: [] };
-      currentProject = name;
-      saveSettings(); renderProjects();
+    if (name && !projects[name]) { projects[name] = { actions: [] }; currentProject=name; saveSettings(); renderProjects(); }
+  });
+
+  projectSelect.addEventListener('change', e => { currentProject=e.target.value; saveSettings(); renderCtas(); });
+
+  document.getElementById('addCtaBtn').addEventListener('click', () => { projects[currentProject].actions.push({ name: "New Action", prompt: "Enter prompt here" }); saveSettings(); renderCtas(); });
+  document.getElementById('addWorkflowBtn').addEventListener('click', () => { projects[currentProject].actions.push({ name: "New Workflow", workflow:true, steps:[{prompt:"First step"},{prompt:"Second step"}] }); saveSettings(); renderCtas(); });
+
+  document.getElementById('addTemplateBtn')?.addEventListener('click', () => {
+    const names = Object.keys(workflowTemplates);
+    const choice = prompt("Choose a template:\n" + names.join("\n"));
+    if (choice && workflowTemplates[choice]) {
+      projects[currentProject].actions.push({ name: choice, ...workflowTemplates[choice] });
+      saveSettings();
+      renderCtas();
     }
   });
 
-  projectSelect.addEventListener('change', (e) => {
-    currentProject = e.target.value;
-    saveSettings(); renderCtas();
-  });
-
-  // Load models
+  // Load Models
   document.getElementById('loadModelsBtn').addEventListener('click', async () => {
     const apiKey = apiKeyInput.value;
     if (!apiKey) { alert("Please enter API key"); return; }
 
     const btn = document.getElementById('loadModelsBtn');
     const originalText = btn.textContent;
-    btn.innerHTML = '<span class="loading"></span>Loading...';
-    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span>Loading...'; btn.disabled=true;
 
     try {
-      const res = await fetch("https://api.groq.com/openai/v1/models", {
-        headers: { "Authorization": "Bearer " + apiKey }
-      });
+      const res = await fetch("https://api.groq.com/openai/v1/models", { headers:{ "Authorization":"Bearer "+apiKey } });
       const data = await res.json();
       modelSelect.innerHTML = "";
-
-      if (data.data) {
-        data.data.forEach(m => {
-          const opt = document.createElement('option');
-          opt.value = m.id; opt.textContent = m.id;
-          modelSelect.appendChild(opt);
-        });
-        document.getElementById('modelInfo').textContent =
-          "💡 Tip: 'instant' = fast, 'instruct' = reasoning, 'large' = long context.";
-      }
+      if(data.data){ data.data.forEach(m=>{ const opt=document.createElement('option'); opt.value=m.id; opt.textContent=m.id; modelSelect.appendChild(opt); }); }
+      document.getElementById('modelInfo').textContent="💡 Tip: 'instant' models for quick answers, 'instruct' for reasoning, 'large' for long context.";
       saveSettings();
-    } catch (error) {
-      alert('Error loading models: ' + error.message);
-    } finally {
-      btn.textContent = originalText;
-      btn.disabled = false;
-    }
+    } catch(e){ alert('Error loading models: '+e.message); }
+    finally{ btn.textContent=originalText; btn.disabled=false; }
   });
 
-  // Copy
+  // Copy to clipboard
   function copyText(id) {
     const element = document.getElementById(id);
     const text = element.textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = event.target.closest('button');
-      const originalHTML = btn.innerHTML;
-      btn.innerHTML = '<span>✅</span>Copied';
-      setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
-    }).catch(() => { alert('Failed to copy text'); });
+    navigator.clipboard.writeText(text).then(()=>{
+      const btn=event.target.closest('button');
+      const originalHTML=btn.innerHTML;
+      btn.innerHTML='<span>✅</span>Copied';
+      setTimeout(()=>{ btn.innerHTML=originalHTML; },2000);
+    }).catch(()=>{ alert('Failed to copy text'); });
   }
 
+  // Initialize
   renderProjects();
 </script>
-</body>
-</html>
