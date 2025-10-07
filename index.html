@@ -626,21 +626,21 @@
     <div class="grid">
       <div class="card">
         <h3 class="card-title">
-          <span>📝</span>
+          <span></span>
           Extracted Text
         </h3>
         <div id="output" class="output-box">
           <div class="output-placeholder">Extracted text will appear here...</div>
         </div>
         <button onclick="copyText('output')" class="btn btn-secondary">
-          <span>📋</span>
+          <span></span>
           Copy
         </button>
       </div>
 
       <div class="card">
         <h3 class="card-title">
-          <span>🤖</span>
+          <span></span>
           AI Analysis
         </h3>
         <div id="aiResult" class="output-box">
@@ -665,7 +665,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">🧠 Model</label>
+          <label class="form-label">Model</label>
           <select id="modelSelect" class="form-input"></select>
           <div class="text-sm" id="modelInfo">Select a model to see details</div>
           <button id="loadModelsBtn" class="btn btn-secondary" style="margin-top: 0.5rem;">
@@ -674,7 +674,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">🌡️ Temperature</label>
+          <label class="form-label">Temperature</label>
           <div class="range-group">
             <input type="range" id="tempSlider" min="0" max="2" step="0.1" class="range-input">
             <div id="tempValue" class="range-value">0.7</div>
@@ -682,17 +682,17 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">📏 Max Tokens</label>
+          <label class="form-label">Max Tokens</label>
           <input type="number" id="maxTokensInput" min="64" max="4096" class="form-input" placeholder="512">
         </div>
 
         <div class="form-group">
-          <label class="form-label">💬 System Prompt</label>
+          <label class="form-label">System Prompt</label>
           <textarea id="systemPrompt" class="form-input form-textarea" placeholder="Optional system prompt..."></textarea>
         </div>
 
         <div class="form-group">
-          <label class="form-label">🎯 Custom Actions</label>
+          <label class="form-label">Custom Actions</label>
           <select id="projectSelect" class="form-input" style="margin-bottom: 0.75rem;"></select>
           <div class="btn-group">
             <button id="newProjectBtn" class="btn btn-sm">+ New Project</button>
