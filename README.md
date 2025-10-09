@@ -1,4 +1,3 @@
-Here’s the updated `README.md` with the **new workflow templates**, **automatic workflow execution**, and **mock DISE provisioning action** included:
 
 ---
 
