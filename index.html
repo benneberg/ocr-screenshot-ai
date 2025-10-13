@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SnapOCR - Multimodal OCR Workflow Automation</title>
+    <title>SnapOCR - Intelligent Signage Operations</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
@@ -18,230 +19,285 @@
             --text-muted: #94a3b8;
             --bs-secondary-color: rgb(255 255 255 / 75%);
         }
-        
-        body {
-            background: linear-gradient(135deg, #262626 0%, #0f172a 100%);
-            color: #dfdfdf;
-            min-height: 100vh;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
-        
-        .navbar {
-            background: rgba(30, 41, 59, 0.25) !important;
-            backdrop-filter: blur(6px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          	border-bottom: 1px solid #242424;
-        }
-        
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: #edff00;
-        }
-        
-        .nav-link {
-            color: #cbd5e1 !important;
-            transition: color 0.3s;
-        }
-        
-        .nav-link:hover, .nav-link.active {
-            color: var(--primary-color) !important;
-        }
-        
-        .card {
-            background: var(--card-bg);
-            border: 1px solid #475569;
-            border-radius: 12px;
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s, box-shadow 0.3s;
-          	color: white;
-        }
-        .card-body, .card-body h3, .card-body p {
-          color: #dfdfdf;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
-        }
-        
+
+```
+    body {
+        background: linear-gradient(135deg, #262626 0%, #0f172a 100%);
+        color: #dfdfdf;
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    
+    .navbar {
+        background: rgba(30, 41, 59, 0.25) !important;
+        backdrop-filter: blur(6px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-bottom: 1px solid #242424;
+    }
+    
+    .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #edff00;
+    }
+    
+    .nav-link {
+        color: #cbd5e1 !important;
+        transition: color 0.3s;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+        color: var(--primary-color) !important;
+    }
+    
+    .card {
+        background: var(--card-bg);
+        border: 1px solid #475569;
+        border-radius: 12px;
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s, box-shadow 0.3s;
+        color: white;
+    }
+    .card-body, .card-body h3, .card-body p, .card-body h4, .card-body h5 {
+        color: #dfdfdf;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
+    }
+    
+    .upload-zone {
+        border: 2px dashed var(--primary-color);
+        border-radius: 12px;
+        padding: 3rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: rgba(37, 99, 235, 0.05);
+    }
+    
+    .upload-zone:hover {
+        background: rgba(37, 99, 235, 0.1);
+        border-color: var(--success-color);
+    }
+    
+    .upload-zone.dragover {
+        background: rgba(37, 99, 235, 0.2);
+        border-color: var(--success-color);
+    }
+    
+    .btn-primary {
+        background: #181818;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+        background: white;
+        color: black;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+    .btn.disabled, .btn:disabled, fieldset:disabled .btn {
+        color: var(--bs-btn-disabled-color);
+        pointer-events: none;
+        background-color: #6c6c6c;
+        border-color: #d9d9d9;
+        opacity: var(--bs-btn-disabled-opacity);
+    }
+    .text-muted {color: white;}
+    
+    .action-card {
+        background: rgba(51, 65, 85, 0.6);
+        border: 1px solid #475569;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid var(--primary-color);
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .action-card:hover {
+        border-color: var(--primary-color);
+        background: rgba(51, 65, 85, 0.8);
+        transform: translateX(5px);
+    }
+    
+    .action-card.selected {
+        border-left-color: var(--success-color);
+        background: rgba(16, 185, 129, 0.15);
+    }
+    
+    .tag {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .tag-error { background: rgba(239, 68, 68, 0.3); color: white; }
+    .tag-content { background: rgba(245, 158, 11, 0.3); color: white; }
+    .tag-log { background: rgba(99, 102, 241, 0.3); color: white; }
+    .tag-provision { background: rgba(16, 185, 129, 0.3); color: white; }
+    .tag-network { background: rgba(59, 130, 246, 0.3); color: white; }
+    .tag-hardware { background: rgba(139, 92, 246, 0.3); color: white; }
+    
+    .device-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        font-size: 0.9rem;
+        margin-right: 0.5rem;
+    }
+    
+    .filter-chip {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: transparent;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-block;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .filter-chip.active {
+        background: white;
+        color: var(--primary-color);
+        border-color: white;
+    }
+    
+    .master-triage {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(99, 102, 241, 0.2));
+        border: 2px solid rgba(16, 185, 129, 0.5);
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+    
+    .code-detected {
+        background: rgba(16, 185, 129, 0.2);
+        border: 2px solid var(--success-color);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+    
+    .workflow-container {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .action-pipeline {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin: 1rem 0;
+    }
+    
+    .pipeline-item {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        color: white;
+    }
+    
+    .pipeline-arrow {
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .result-box {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid #475569;
+        border-radius: 8px;
+        padding: 1.5rem;
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: 'Monaco', 'Courier New', monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: white;
+    }
+    
+    .page-content {
+        display: none;
+    }
+    
+    .page-content.active {
+        display: block;
+    }
+    
+    .form-control, .form-select {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid #475569;
+        color: #e2e8f0;
+        border-radius: 8px;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background: rgba(15, 23, 42, 0.8);
+        border-color: var(--primary-color);
+        color: #e2e8f0;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+    }
+    
+    .progress {
+        height: 8px;
+        border-radius: 10px;
+        background: rgba(15, 23, 42, 0.6);
+    }
+    
+    .progress-bar {
+        background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+    }
+    
+    .model-card {
+        background: rgba(30, 41, 59, 0.4);
+        border: 1px solid #475569;
+        border-radius: 8px;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+    
+    .model-card:hover {
+        border-color: var(--primary-color);
+        background: rgba(30, 41, 59, 0.6);
+    }
+    
+    .model-card.selected {
+        border-color: var(--success-color);
+        background: rgba(16, 185, 129, 0.1);
+    }
+    
+    @media (max-width: 768px) {
         .upload-zone {
-            border: 2px dashed var(--primary-color);
-            border-radius: 12px;
-            padding: 3rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: rgba(37, 99, 235, 0.05);
+            padding: 2rem 1rem;
         }
-        
-        .upload-zone:hover {
-            background: rgba(37, 99, 235, 0.1);
-            border-color: var(--success-color);
-        }
-        
-        .upload-zone.dragover {
-            background: rgba(37, 99, 235, 0.2);
-            border-color: var(--success-color);
-        }
-        
-        .btn-primary {
-            background: #181818;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary:hover {
-            background: white;
-          	color: black;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
-        }
-        .btn.disabled, .btn:disabled, fieldset:disabled .btn {
-            color: var(--bs-btn-disabled-color);
-            pointer-events: none;
-            background-color: #6c6c6c;
-            border-color: #d9d9d9;
-            opacity: var(--bs-btn-disabled-opacity);
-        }
-      	.text-muted {color: white;}
-        .workflow-item {
-            background: rgba(51, 65, 85, 0.6);
-            border: 1px solid #475569;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s;
-        }
-        
-        .workflow-item:hover {
-            border-color: var(--primary-color);
-            background: rgba(51, 65, 85, 0.8);
-        }
-        
-        .result-box {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid #475569;
-            border-radius: 8px;
-            padding: 1.5rem;
-            max-height: 400px;
-            overflow-y: auto;
-            font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 0.9rem;
-            line-height: 1.6;
-          	color: white;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        
-        .status-success {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--success-color);
-        }
-        
-        .status-error {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger-color);
-        }
-        
-        .status-processing {
-            background: rgba(37, 99, 235, 0.2);
-            color: var(--primary-color);
-        }
-        
-        .page-content {
-            display: none;
-        }
-        
-        .page-content.active {
-            display: block;
-        }
-        
-        .form-control, .form-select {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid #475569;
-            color: #e2e8f0;
-            border-radius: 8px;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            background: rgba(15, 23, 42, 0.8);
-            border-color: var(--primary-color);
-            color: #e2e8f0;
-            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
-        }
-        
-        .progress {
-            height: 8px;
-            border-radius: 10px;
-            background: rgba(15, 23, 42, 0.6);
-        }
-        
-        .progress-bar {
-            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
-        }
-        
-        .condition-action-pair {
-            background: rgba(30, 41, 59, 0.4);
-            border-left: 3px solid var(--primary-color);
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 6px;
-        }
-        
-        .icon-lg {
-            font-size: 3rem;
-            color: var(--primary-color);
+        .card {
             margin-bottom: 1rem;
         }
-        
-        .settings-section {
-            margin-bottom: 2rem;
-        }
-        
-        .model-card {
-            background: rgba(30, 41, 59, 0.4);
-            border: 1px solid #475569;
-            border-radius: 8px;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-          	color: white;
-        }
-        
-        .model-card:hover {
-            border-color: var(--primary-color);
-            background: rgba(30, 41, 59, 0.6);
-        }
-        
-        .model-card.selected {
-            border-color: var(--success-color);
-            background: rgba(16, 185, 129, 0.1);
-        }
-        
-        .spinner-border-sm {
-            width: 1rem;
-            height: 1rem;
-        }
-        
-        @media (max-width: 768px) {
-            .upload-zone {
-                padding: 2rem 1rem;
-            }
-            
-            .card {
-                margin-bottom: 1rem;
-            }
-        }
-    </style>
+    }
+</style>
+```
+
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -254,1305 +310,2032 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#" data-page="home"><i class="fas fa-home"></i> Home</a>
+                        <a class="nav-link active" href="#" data-page="home"><i class="fas fa-bolt"></i> Quick Mode</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" data-page="workflows"><i class="fas fa-project-diagram"></i> Workflows</a>
+                        <a class="nav-link" href="#" data-page="workflows"><i class="fas fa-project-diagram"></i> Workflow Builder</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" data-page="settings"><i class="fas fa-cog"></i> Settings</a>
+                        <a class="nav-link" href="#" data-page="settings"><i class="fas fa-cog"></i> Advanced Settings</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Main Container -->
-    <div class="container-fluid py-4">
-        
-        <!-- HOME PAGE -->
-        <div id="home-page" class="page-content active">
-            <div class="row">
-                <div class="col-12 text-center mb-4">
-                    <h1 class="display-4 fw-bold">Multimodal AI - Transform screenshots into insights, automatically.</h1>
-                    <p class="lead">Upload images, extract text, and automate intelligent workflows with AI</p>
-                </div>
-            </div>
-            
-            <div class="row g-4">
-                <!-- Upload Section -->
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h3 class="card-title mb-4"><i class="fas fa-upload"></i> Upload Image</h3>
-                            
-                            <div id="upload-zone" class="upload-zone">
-                                <i class="fas fa-cloud-upload-alt icon-lg"></i>
-                                <h5>Click to browse img</h5>
-                                <input type="file" id="image-input" accept="image/*" style="display: none;">
-                            </div>
-                            
-                            <div id="image-preview" class="mt-3 text-center" style="display: none;">
-                                <img id="preview-img" class="img-fluid rounded" style="max-height: 300px;">
-                                <button id="clear-image" class="btn btn-danger btn-sm mt-2">
-                                    <i class="fas fa-times"></i> Clear
-                                </button>
-                            </div>
-                            
-                            <button id="extract-btn" class="btn btn-primary w-100 mt-3" disabled>
-                                <i class="fas fa-magic"></i> Extract Text (OCR)
-                            </button>
-                            
-                            <div id="ocr-progress" class="mt-3" style="display: none;">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span>Processing...</span>
-                                    <span id="progress-percent">0%</span>
-                                </div>
-                                <div class="progress">
-                                    <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Extracted Text Section -->
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h3 class="card-title mb-4"><i class="fas fa-file-alt"></i> Extracted Text</h3>
-                            <div id="extracted-text" class="result-box">
-                                <p class="text-muted text-center">No text extracted yet. Upload an image to begin.</p>
-                            </div>
-                            
-                            <button id="analyze-btn" class="btn btn-primary w-100 mt-3" disabled>
-                                <i class="fas fa-brain"></i> Analyze with AI
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Analysis Results -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <h3 class="card-title mb-4"><i class="fas fa-chart-line"></i> AI Analysis Results</h3>
-                            <div id="analysis-results" class="result-box">
-                                <p class="text-muted text-center">Analysis results will appear here after AI processing.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+```
+<!-- Main Container -->
+<div class="container-fluid py-4">
+    
+    <!-- QUICK MODE PAGE -->
+    <div id="home-page" class="page-content active">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h1 class="display-4 fw-bold">Intelligent Signage Operations</h1>
+                <p class="lead">Autonomous watchguard for digital signage infrastructure</p>
             </div>
         </div>
         
-        <!-- WORKFLOWS PAGE -->
-        <div id="workflows-page" class="page-content">
-            <div class="row">
-                <div class="col-12 mb-4">
-                    <h1 class="display-5 fw-bold"><i class="fas fa-project-diagram"></i> Workflow Builder</h1>
-                    <p class="lead">Create intelligent automation rules: IF condition → THEN action</p>
-                </div>
-            </div>
-            
-            <div class="row g-4">
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title mb-4">Create New Workflow</h4>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Workflow Name</label>
-                                <input type="text" id="workflow-name" class="form-control" placeholder="e.g., Error Detection">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Condition Type</label>
-                                <select id="condition-type" class="form-select">
-                                    <option value="contains">Text Contains</option>
-                                    <option value="not_contains">Text Does Not Contain</option>
-                                    <option value="equals">Text Equals</option>
-                                    <option value="empty">Text is Empty</option>
-                                </select>
-                            </div>
-                            
-                            <div class="mb-3" id="condition-value-group">
-                                <label class="form-label">Condition Value</label>
-                                <input type="text" id="condition-value" class="form-control" placeholder="e.g., System Error">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Action Type</label>
-                                <select id="action-type" class="form-select">
-                                    <option value="summarize">Summarize Text</option>
-                                    <option value="classify">Classify Content</option>
-                                    <option value="extract">Extract Key Info</option>
-                                    <option value="suggest">Suggest Actions</option>
-                                    <option value="log">Log Result</option>
-                                </select>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Custom Prompt (Optional)</label>
-                                <textarea id="action-prompt" class="form-control" rows="3" placeholder="Custom instructions for the AI..."></textarea>
-                            </div>
-                            
-                            <button id="add-workflow-btn" class="btn btn-primary w-100">
-                                <i class="fas fa-plus"></i> Add Workflow
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title mb-4">Active Workflows</h4>
-                            <div id="workflows-list">
-                                <p class="text-center">No workflows created yet. Create your first workflow to get started.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title mb-4"><i class="fas fa-play-circle"></i> Test Workflows</h4>
-                            <p class="">Workflows will automatically execute when you analyze text on the Home page.</p>
-                            <div id="workflow-execution-log" class="result-box mt-3">
-                                <p class="text-center">Workflow execution logs will appear here.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- SETTINGS PAGE -->
-        <div id="settings-page" class="page-content">
-            <div class="row">
-                <div class="col-12 mb-4">
-                    <h1 class="display-5 fw-bold"><i class="fas fa-cog"></i> Settings</h1>
-                    <p class="lead">Configure your AI models and API access</p>
-                </div>
-            </div>
-            
-            <div class="row g-4">
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="settings-section">
-                                <h4><i class="fas fa-key"></i> API Configuration</h4>
-                                <div class="mb-3">
-                                    <label class="form-label">Groq API Key</label>
-                                    <input type="password" id="api-key-input" class="form-control" placeholder="Enter your Groq API key">
-                                    <small class="">Get your free API key from <a href="https://console.groq.com" target="_blank">console.groq.com</a></small>
-                                </div>
-                                <button id="save-api-key-btn" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Save API Key
-                                </button>
-                                <button id="test-api-btn" class="btn btn-success ms-2">
-                                    <i class="fas fa-check-circle"></i> Test Connection
-                                </button>
-                                <div id="api-status" class="mt-3"></div>
-                            </div>
-                            
-                            <hr class="my-4">
-                            
-                            <div class="settings-section">
-                                <h4><i class="fas fa-robot"></i> Model Selection</h4>
-                                <button id="fetch-models-btn" class="btn btn-primary mb-3">
-                                    <i class="fas fa-sync"></i> Fetch Available Models
-                                </button>
-                                <div id="models-list"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="settings-section">
-                                <h4><i class="fas fa-sliders-h"></i> Model Parameters</h4>
-                                
-                                <div class="mb-4">
-                                    <label class="form-label">Temperature: <span id="temp-value">0.7</span></label>
-                                    <input type="range" class="form-range" id="temperature-slider" min="0" max="2" step="0.1" value="0.7">
-                                    <small class="text-muted">Controls randomness: 0 = focused, 2 = creative</small>
-                                </div>
-                                
-                                <div class="mb-4">
-                                    <label class="form-label">Max Tokens</label>
-                                    <input type="number" id="max-tokens-input" class="form-control" value="1024" min="1" max="8192">
-                                    <small class="text-muted">Maximum length of AI response</small>
-                                </div>
-                                
-                                <div class="mb-4">
-                                    <label class="form-label">System Prompt (Machine Instruction)</label>
-                                    <textarea id="system-prompt-input" class="form-control" rows="6">You are an intelligent OCR analysis assistant. Analyze the provided text and respond concisely and accurately. Focus on extracting key information, identifying patterns, and providing actionable insights.</textarea>
-                                    <small class="text-muted">Default instruction template for AI reasoning</small>
-                                </div>
-                                
-                                <button id="save-settings-btn" class="btn btn-primary w-100">
-                                    <i class="fas fa-save"></i> Save Settings
-                                </button>
-                            </div>
-                            
-                            <hr class="my-4">
-                            
-                            <div class="settings-section">
-                                <h4><i class="fas fa-info-circle"></i> Current Configuration</h4>
-                                <div id="config-preview" class="result-box">
-                                    <p class="text-muted">Save settings to see configuration preview</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-    </div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Application Modules -->
-    <script>
-    // ==========================================
-    // SETTINGS MODULE - settings.js
-    // Manages API keys, model selection, and user preferences
-    // Stores configuration in browser localStorage
-    // ==========================================
-    
-    const SettingsModule = (() => {
-        const STORAGE_KEYS = {
-            API_KEY: 'visionflow_api_key',
-            MODEL: 'visionflow_model',
-            TEMPERATURE: 'visionflow_temperature',
-            MAX_TOKENS: 'visionflow_max_tokens',
-            SYSTEM_PROMPT: 'visionflow_system_prompt'
-        };
-        
-        // Save API key to localStorage
-        function saveApiKey(apiKey) {
-            localStorage.setItem(STORAGE_KEYS.API_KEY, apiKey);
-        }
-        
-        // Retrieve API key from localStorage
-        function getApiKey() {
-            return localStorage.getItem(STORAGE_KEYS.API_KEY);
-        }
-        
-        // Save selected model
-        function saveModel(modelId) {
-            localStorage.setItem(STORAGE_KEYS.MODEL, modelId);
-        }
-        
-        // Get selected model
-        function getModel() {
-            return localStorage.getItem(STORAGE_KEYS.MODEL) || 'llama-3.3-70b-versatile';
-        }
-        
-        // Save temperature setting
-        function saveTemperature(temp) {
-            localStorage.setItem(STORAGE_KEYS.TEMPERATURE, temp);
-        }
-        
-        // Get temperature setting
-        function getTemperature() {
-            return parseFloat(localStorage.getItem(STORAGE_KEYS.TEMPERATURE)) || 0.7;
-        }
-        
-        // Save max tokens setting
-        function saveMaxTokens(tokens) {
-            localStorage.setItem(STORAGE_KEYS.MAX_TOKENS, tokens);
-        }
-        
-        // Get max tokens setting
-        function getMaxTokens() {
-            return parseInt(localStorage.getItem(STORAGE_KEYS.MAX_TOKENS)) || 1024;
-        }
-        
-        // Save system prompt
-        function saveSystemPrompt(prompt) {
-            localStorage.setItem(STORAGE_KEYS.SYSTEM_PROMPT, prompt);
-        }
-        
-        // Get system prompt
-        function getSystemPrompt() {
-            return localStorage.getItem(STORAGE_KEYS.SYSTEM_PROMPT) || 
-                   'You are an intelligent OCR analysis assistant. Analyze the provided text and respond concisely and accurately.';
-        }
-        
-        // Get all settings as object
-        function getAllSettings() {
-            return {
-                apiKey: getApiKey(),
-                model: getModel(),
-                temperature: getTemperature(),
-                maxTokens: getMaxTokens(),
-                systemPrompt: getSystemPrompt()
-            };
-        }
-        
-        // Check if API key is configured
-        function isConfigured() {
-            return !!getApiKey();
-        }
-        
-        return {
-            saveApiKey,
-            getApiKey,
-            saveModel,
-            getModel,
-            saveTemperature,
-            getTemperature,
-            saveMaxTokens,
-            getMaxTokens,
-            saveSystemPrompt,
-            getSystemPrompt,
-            getAllSettings,
-            isConfigured
-        };
-    })();
-    
-    // ==========================================
-    // OCR MODULE - ocr.js
-    // Handles image upload and text extraction using Tesseract.js v5
-    // Provides progress callbacks for UI updates
-    // ==========================================
-    
-    const OCRModule = (() => {
-        let currentImage = null;
-        let extractedText = '';
-        
-        // Process image and extract text using Tesseract.js v5
-        async function extractText(imageFile, progressCallback) {
-            try {
-                currentImage = imageFile;
-                
-                // Tesseract.js v5 simple API - create worker
-                const worker = await Tesseract.createWorker('eng', 1, {
-                    logger: m => {
-                        // Update progress bar during OCR processing
-                        if (progressCallback && m.progress !== undefined) {
-                            progressCallback(Math.round(m.progress * 100));
-                        }
-                        console.log(m); // Debug log
-                    }
-                });
-                
-                // Perform OCR on the image file directly
-                const { data: { text } } = await worker.recognize(imageFile);
-                
-                // Clean up worker
-                await worker.terminate();
-                
-                extractedText = text.trim();
-                return extractedText;
-                
-            } catch (error) {
-                console.error('OCR extraction error:', error);
-                throw new Error('Failed to extract text from image: ' + error.message);
-            }
-        }
-        
-        // Get the currently extracted text
-        function getText() {
-            return extractedText;
-        }
-        
-        // Clear extracted text
-        function clearText() {
-            extractedText = '';
-            currentImage = null;
-        }
-        
-        // Check if text has been extracted
-        function hasText() {
-            return extractedText.length > 0;
-        }
-        
-        return {
-            extractText,
-            getText,
-            clearText,
-            hasText
-        };
-    })();
-    
-    // ==========================================
-    // LLM MODULE - llm.js
-    // Manages communication with Groq Fast Inference API
-    // Handles model listing, text analysis, and reasoning tasks
-    // ==========================================
-    
-    const LLMModule = (() => {
-        const GROQ_API_BASE = 'https://api.groq.com/openai/v1';
-        
-        // Fetch available models from Groq API
-        async function fetchModels() {
-            const apiKey = SettingsModule.getApiKey();
-            if (!apiKey) {
-                throw new Error('API key not configured');
-            }
-            
-            try {
-                const response = await fetch(`${GROQ_API_BASE}/models`, {
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Failed to fetch models');
-                }
-                
-                const data = await response.json();
-                return data.data || [];
-            } catch (error) {
-                console.error('Error fetching models:', error);
-                throw error;
-            }
-        }
-        
-        // Test API connection
-        async function testConnection() {
-            try {
-                await fetchModels();
-                return { success: true, message: 'API connection successful' };
-            } catch (error) {
-                return { success: false, message: error.message };
-            }
-        }
-        
-        // Analyze text using Groq API with current settings
-        async function analyzeText(text, customPrompt = null) {
-            const apiKey = SettingsModule.getApiKey();
-            if (!apiKey) {
-                throw new Error('API key not configured. Please set up your API key in Settings.');
-            }
-            
-            const settings = SettingsModule.getAllSettings();
-            const systemPrompt = customPrompt || settings.systemPrompt;
-            
-            try {
-                const response = await fetch(`${GROQ_API_BASE}/chat/completions`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: settings.model,
-                        messages: [
-                            {
-                                role: 'system',
-                                content: systemPrompt
-                            },
-                            {
-                                role: 'user',
-                                content: text
-                            }
-                        ],
-                        temperature: settings.temperature,
-                        max_tokens: settings.maxTokens
-                    })
-                });
-                
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error?.message || 'API request failed');
-                }
-                
-                const data = await response.json();
-                return data.choices[0].message.content;
-                
-            } catch (error) {
-                console.error('LLM analysis error:', error);
-                throw error;
-            }
-        }
-        
-        // Execute a specific workflow action using LLM
-        async function executeAction(actionType, text, customPrompt = null) {
-            let prompt = customPrompt;
-            
-            // Generate default prompts based on action type
-            if (!prompt) {
-                switch (actionType) {
-                    case 'summarize':
-                        prompt = 'Summarize the following text concisely, highlighting the most important points:\n\n' + text;
-                        break;
-                    case 'classify':
-                        prompt = 'Classify the following text into categories (e.g., error, warning, info, normal):\n\n' + text;
-                        break;
-                    case 'extract':
-                        prompt = 'Extract key information, entities, and data points from the following text:\n\n' + text;
-                        break;
-                    case 'suggest':
-                        prompt = 'Based on the following text, suggest appropriate actions or next steps:\n\n' + text;
-                        break;
-                    case 'log':
-                        return `[LOG] ${new Date().toISOString()} - Text logged: ${text.substring(0, 100)}...`;
-                    default:
-                        prompt = text;
-                }
-            }
-            
-            // For log actions, return immediately
-            if (actionType === 'log' && !customPrompt) {
-                return prompt;
-            }
-            
-            return await analyzeText(prompt);
-        }
-        
-        return {
-            fetchModels,
-            testConnection,
-            analyzeText,
-            executeAction
-        };
-    })();
-    
-    // ==========================================
-    // WORKFLOW MODULE - workflow.js
-    // Manages workflow creation, storage, and execution
-    // Handles condition evaluation and action chaining
-    // ==========================================
-    
-    const WorkflowModule = (() => {
-        const STORAGE_KEY = 'visionflow_workflows';
-        let workflows = [];
-        
-        // Load workflows from localStorage
-        function loadWorkflows() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            workflows = stored ? JSON.parse(stored) : [];
-            return workflows;
-        }
-        
-        // Save workflows to localStorage
-        function saveWorkflows() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(workflows));
-        }
-        
-        // Add a new workflow
-        function addWorkflow(workflow) {
-            workflow.id = Date.now().toString();
-            workflow.enabled = true;
-            workflows.push(workflow);
-            saveWorkflows();
-            return workflow;
-        }
-        
-        // Remove a workflow by ID
-        function removeWorkflow(id) {
-            workflows = workflows.filter(w => w.id !== id);
-            saveWorkflows();
-        }
-        
-        // Toggle workflow enabled/disabled
-        function toggleWorkflow(id) {
-            const workflow = workflows.find(w => w.id === id);
-            if (workflow) {
-                workflow.enabled = !workflow.enabled;
-                saveWorkflows();
-            }
-        }
-        
-        // Get all workflows
-        function getWorkflows() {
-            return workflows;
-        }
-        
-        // Evaluate if a condition matches the text
-        function evaluateCondition(condition, text) {
-            const { type, value } = condition;
-            
-            switch (type) {
-                case 'contains':
-                    return text.toLowerCase().includes(value.toLowerCase());
-                case 'not_contains':
-                    return !text.toLowerCase().includes(value.toLowerCase());
-                case 'equals':
-                    return text.trim().toLowerCase() === value.toLowerCase();
-                case 'empty':
-                    return text.trim().length === 0;
-                default:
-                    return false;
-            }
-        }
-        
-        // Execute all matching workflows on given text
-        async function executeWorkflows(text) {
-            const results = [];
-            
-            // Get only enabled workflows
-            const enabledWorkflows = workflows.filter(w => w.enabled);
-            
-            for (const workflow of enabledWorkflows) {
-                try {
-                    // Evaluate condition
-                    const conditionMet = evaluateCondition(workflow.condition, text);
-                    
-                    if (conditionMet) {
-                        // Execute action using LLM
-                        const actionResult = await LLMModule.executeAction(
-                            workflow.action.type,
-                            text,
-                            workflow.action.customPrompt || null
-                        );
+        <!-- Upload Section -->
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4"><i class="fas fa-upload"></i> Upload Screenshot</h3>
                         
-                        results.push({
-                            workflowId: workflow.id,
-                            workflowName: workflow.name,
-                            success: true,
-                            result: actionResult,
-                            timestamp: new Date().toISOString()
-                        });
-                    }
-                } catch (error) {
-                    results.push({
-                        workflowId: workflow.id,
-                        workflowName: workflow.name,
-                        success: false,
-                        error: error.message,
-                        timestamp: new Date().toISOString()
-                    });
-                }
-            }
-            
-            return results;
-        }
-        
-        // Initialize: load workflows from storage
-        loadWorkflows();
-        
-        return {
-            addWorkflow,
-            removeWorkflow,
-            toggleWorkflow,
-            getWorkflows,
-            executeWorkflows,
-            loadWorkflows
-        };
-    })();
-    
-    // ==========================================
-    // UI MODULE - ui.js
-    // Manages all DOM updates, page navigation, and user interactions
-    // Provides helper functions for displaying status and results
-    // ==========================================
-    
-    const UIModule = (() => {
-        
-        // Navigate between pages (Home, Workflows, Settings)
-        function navigateToPage(pageName) {
-            // Hide all pages
-            document.querySelectorAll('.page-content').forEach(page => {
-                page.classList.remove('active');
-            });
-            
-            // Show selected page
-            const targetPage = document.getElementById(`${pageName}-page`);
-            if (targetPage) {
-                targetPage.classList.add('active');
-            }
-            
-            // Update nav links
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('data-page') === pageName) {
-                    link.classList.add('active');
-                }
-            });
-        }
-        
-        // Display status message with styling
-        function showStatus(elementId, message, type = 'info') {
-            const element = document.getElementById(elementId);
-            if (!element) return;
-            
-            const alertClass = {
-                'success': 'alert-success',
-                'error': 'alert-danger',
-                'warning': 'alert-warning',
-                'info': 'alert-info'
-            }[type] || 'alert-info';
-            
-            element.innerHTML = `
-                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <div id="upload-zone" class="upload-zone">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--primary-color);"></i>
+                            <h5>Click to browse or drag & drop</h5>
+                            <small>Auto-detects device type and routes intelligently</small>
+                            <input type="file" id="image-input" accept="image/*" style="display: none;">
+                        </div>
+                        
+                        <div id="image-preview" class="mt-3 text-center" style="display: none;">
+                            <img id="preview-img" class="img-fluid rounded" style="max-height: 300px;">
+                            <button id="clear-image" class="btn btn-danger btn-sm mt-2">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                        </div>
+                        
+                        <button id="extract-btn" class="btn btn-primary w-100 mt-3" disabled>
+                            <i class="fas fa-magic"></i> Process Screenshot
+                        </button>
+                        
+                        <div id="ocr-progress" class="mt-3" style="display: none;">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Processing...</span>
+                                <span id="progress-percent">0%</span>
+                            </div>
+                            <div class="progress">
+                                <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            `;
-        }
-        
-        // Update OCR progress bar
-        function updateProgress(percent) {
-            const progressBar = document.getElementById('progress-bar');
-            const progressPercent = document.getElementById('progress-percent');
+            </div>
             
-            if (progressBar) progressBar.style.width = `${percent}%`;
-            if (progressPercent) progressPercent.textContent = `${percent}%`;
-        }
-        
-        // Display extracted text
-        function displayExtractedText(text) {
-            const element = document.getElementById('extracted-text');
-            if (text && text.trim()) {
-                element.innerHTML = `<pre class="mb-0">${escapeHtml(text)}</pre>`;
-            } else {
-                element.innerHTML = '<p class="text-muted text-center">No text detected in the image.</p>';
-            }
-        }
-        
-        // Display AI analysis results
-        function displayAnalysisResults(result) {
-            const element = document.getElementById('analysis-results');
-            element.innerHTML = `<pre class="mb-0">${escapeHtml(result)}</pre>`;
-        }
-        
-        // Display workflow execution logs
-        function displayWorkflowResults(results) {
-            const element = document.getElementById('workflow-execution-log');
-            
-            if (!results || results.length === 0) {
-                element.innerHTML = '<p class="text-muted text-center">No workflows executed.</p>';
-                return;
-            }
-            
-            let html = '';
-            results.forEach(result => {
-                const statusClass = result.success ? 'status-success' : 'status-error';
-                const statusText = result.success ? 'Success' : 'Failed';
-                
-                html += `
-                    <div class="workflow-item">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <strong>${escapeHtml(result.workflowName)}</strong>
-                            <span class="status-badge ${statusClass}">${statusText}</span>
-                        </div>
-                        <small class="text-muted">${result.timestamp}</small>
-                        <div class="mt-2">
-                            ${result.success ? 
-                                `<pre class="mb-0" style="font-size: 0.85rem;">${escapeHtml(result.result)}</pre>` : 
-                                `<p class="text-danger mb-0">Error: ${escapeHtml(result.error)}</p>`
-                            }
-                        </div>
-                    </div>
-                `;
-            });
-            
-            element.innerHTML = html;
-        }
-        
-        // Render workflows list
-        function renderWorkflows() {
-            const workflows = WorkflowModule.getWorkflows();
-            const element = document.getElementById('workflows-list');
-            
-            if (!workflows || workflows.length === 0) {
-                element.innerHTML = '<p class="text-muted text-center">No workflows created yet.</p>';
-                return;
-            }
-            
-            let html = '';
-            workflows.forEach(workflow => {
-                const conditionText = getConditionText(workflow.condition);
-                const actionText = getActionText(workflow.action);
-                
-                html += `
-                    <div class="condition-action-pair">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h6 class="mb-0">${escapeHtml(workflow.name)}</h6>
-                            <div>
-                                <button class="btn btn-sm btn-outline-warning" onclick="UIModule.toggleWorkflowUI('${workflow.id}')">
-                                    <i class="fas fa-${workflow.enabled ? 'pause' : 'play'}"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="UIModule.removeWorkflowUI('${workflow.id}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+            <!-- Extracted Text -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4"><i class="fas fa-file-alt"></i> Extracted Text & Triage</h3>
+                        
+                        <div id="triage-info" style="display: none;">
+                            <div class="master-triage">
+                                <h5 style="color: white; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-robot me-2"></i>Master Triage
+                                </h5>
+                                <div id="device-info"></div>
+                                <div id="category-info" style="margin-top: 0.5rem;"></div>
                             </div>
                         </div>
-                        <div class="mb-1">
-                            <span class="badge bg-primary">IF</span>
-                            <span class="ms-2">${conditionText}</span>
+                        
+                        <div id="extracted-text" class="result-box">
+                            <p class="text-center">No text extracted yet. Upload an image to begin.</p>
                         </div>
-                        <div>
-                            <span class="badge bg-success">THEN</span>
-                            <span class="ms-2">${actionText}</span>
-                        </div>
-                        ${!workflow.enabled ? '<div class="mt-2"><small class="text-warning"><i class="fas fa-pause-circle"></i> Disabled</small></div>' : ''}
                     </div>
-                `;
-            });
-            
-            element.innerHTML = html;
-        }
+                </div>
+            </div>
+        </div>
         
-        // Helper to format condition for display
-        function getConditionText(condition) {
-            const typeLabels = {
-                'contains': 'Text contains',
-                'not_contains': 'Text does not contain',
-                'equals': 'Text equals',
-                'empty': 'Text is empty'
-            };
-            
-            const label = typeLabels[condition.type] || condition.type;
-            return condition.value ? `${label} "${condition.value}"` : label;
-        }
+        <!-- Action Filter & Selection -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3"><i class="fas fa-filter"></i> Filter & Select Actions</h4>
+                        <div class="mb-3">
+                            <button class="filter-chip active" data-filter="all">All Actions</button>
+                            <button class="filter-chip" data-filter="error">Errors</button>
+                            <button class="filter-chip" data-filter="content">Content</button>
+                            <button class="filter-chip" data-filter="log">Logs</button>
+                            <button class="filter-chip" data-filter="provision">Provisioning</button>
+                            <button class="filter-chip" data-filter="network">Network</button>
+                        </div>
+                        <input type="text" id="action-search" class="form-control mb-3" placeholder="Search actions...">
+                        <div id="actions-list"></div>
+                        
+                        <button id="run-actions-btn" class="btn btn-primary w-100 mt-3" disabled>
+                            <i class="fas fa-play"></i> Run Selected Actions
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
         
-        // Helper to format action for display
-        function getActionText(action) {
-            const typeLabels = {
-                'summarize': 'Summarize text',
-                'classify': 'Classify content',
-                'extract': 'Extract key information',
-                'suggest': 'Suggest actions',
-                'log': 'Log result'
-            };
-            
-            return typeLabels[action.type] || action.type;
-        }
-        
-        // Render available models
-        function renderModels(models) {
-            const element = document.getElementById('models-list');
-            const currentModel = SettingsModule.getModel();
-            
-            if (!models || models.length === 0) {
-                element.innerHTML = '<p class="text-muted">No models available. Please check your API key.</p>';
-                return;
-            }
-            
-            let html = '';
-            models.forEach(model => {
-                const isSelected = model.id === currentModel;
-                html += `
-                    <div class="model-card ${isSelected ? 'selected' : ''}" onclick="UIModule.selectModel('${model.id}')">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>${model.id}</strong>
-                                ${isSelected ? '<span class="badge bg-success ms-2">Active</span>' : ''}
+        <!-- Results -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3"><i class="fas fa-clipboard-list"></i> Execution Results</h4>
+                        <div id="code-detection" style="display: none;">
+                            <div class="code-detected">
+                                <h5 style="color: white;"><i class="fas fa-key me-2"></i>Provisioning Code Detected</h5>
+                                <div id="detected-codes"></div>
                             </div>
-                            <i class="fas fa-${isSelected ? 'check-circle text-success' : 'circle'}"></i>
+                        </div>
+                        <div id="analysis-results" class="result-box">
+                            <p class="text-center">Results will appear here after processing.</p>
                         </div>
                     </div>
-                `;
-            });
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- WORKFLOW BUILDER PAGE -->
+    <div id="workflows-page" class="page-content">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h1 class="display-5 fw-bold"><i class="fas fa-project-diagram"></i> Workflow Builder</h1>
+                <p class="lead">Build multi-step automation workflows with chained actions</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4><i class="fas fa-folder"></i> Workflows</h4>
+                        <button class="btn btn-success w-100 my-3" onclick="createNewWorkflow()">
+                            <i class="fas fa-plus"></i> New Workflow
+                        </button>
+                        <div id="workflows-list-sidebar"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="workflow-editor" style="display: none;">
+                            <h4><i class="fas fa-edit"></i> Edit Workflow</h4>
+                            <div class="workflow-container">
+                                <div class="mb-3">
+                                    <label class="form-label">Workflow Name</label>
+                                    <input type="text" class="form-control" id="wf-name" placeholder="Error Monitoring System">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" id="wf-description" rows="2"></textarea>
+                                </div>
+                                
+                                <h5 class="mt-4">Actions Pipeline</h5>
+                                <div class="action-pipeline" id="action-pipeline">
+                                    <div class="text-muted">No actions added yet</div>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <button class="btn btn-primary" onclick="showActionSelector()">
+                                        <i class="fas fa-plus"></i> Add Action
+                                    </button>
+                                    <button class="btn btn-success" onclick="saveCurrentWorkflow()">
+                                        <i class="fas fa-save"></i> Save
+                                    </button>
+                                    <button class="btn btn-danger" onclick="deleteCurrentWorkflow()">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="workflow-placeholder">
+                            <div class="text-center py-5">
+                                <i class="fas fa-folder-open fa-3x mb-3" style="color: var(--text-muted);"></i>
+                                <p>Select a workflow or create a new one</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SETTINGS PAGE -->
+    <div id="settings-page" class="page-content">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h1 class="display-5 fw-bold"><i class="fas fa-cog"></i> Advanced Settings</h1>
+                <p class="lead">Configure AI, actions library, and pattern recognition</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4><i class="fas fa-key"></i> API Configuration</h4>
+                        <div class="mb-3">
+                            <label class="form-label">Groq API Key</label>
+                            <input type="password" id="api-key-input" class="form-control" placeholder="gsk_...">
+                            <small>Get your free API key from <a href="https://console.groq.com" target="_blank">console.groq.com</a></small>
+                        </div>
+                        <button id="save-api-key-btn" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save API Key
+                        </button>
+                        <button id="test-api-btn" class="btn btn-success ms-2">
+                            <i class="fas fa-check-circle"></i> Test Connection
+                        </button>
+                        <div id="api-status" class="mt-3"></div>
+                        
+                        <hr class="my-4">
+                        
+                        <h4><i class="fas fa-robot"></i> Model Selection</h4>
+                        <button id="fetch-models-btn" class="btn btn-primary mb-3">
+                            <i class="fas fa-sync"></i> Fetch Available Models
+                        </button>
+                        <div id="models-list"></div>
+                    </div>
+                </div>
+            </div>
             
-            element.innerHTML = html;
-        }
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4><i class="fas fa-sliders-h"></i> Model Parameters</h4>
+                        <div class="mb-4">
+                            <label class="form-label">Temperature: <span id="temp-value">0.7</span></label>
+                            <input type="range" class="form-range" id="temperature-slider" min="0" max="2" step="0.1" value="0.7">
+                            <small class="text-muted">0 = focused, 2 = creative</small>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Max Tokens</label>
+                            <input type="number" id="max-tokens-input" class="form-control" value="1024" min="1" max="8192">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">System Prompt</label>
+                            <textarea id="system-prompt-input" class="form-control" rows="4">You are an intelligent OCR analysis assistant for digital signage operations.</textarea>
+                        </div>
+                        <button id="save-settings-btn" class="btn btn-primary w-100">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                        
+                        <hr class="my-4">
+                        
+                        <h5><i class="fas fa-info-circle"></i> Current Configuration</h5>
+                        <div id="config-preview" class="result-box">
+                            <p class="text-muted">Save settings to see preview</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         
-        // Display current configuration
-        function displayConfig() {
-            const settings = SettingsModule.getAllSettings();
-            const element = document.getElementById('config-preview');
-            
-            element.innerHTML = `
-                <div><strong>Model:</strong> ${settings.model}</div>
-                <div><strong>Temperature:</strong> ${settings.temperature}</div>
-                <div><strong>Max Tokens:</strong> ${settings.maxTokens}</div>
-                <div class="mt-2"><strong>System Prompt:</strong></div>
-                <pre class="mt-1 mb-0" style="font-size: 0.85rem;">${escapeHtml(settings.systemPrompt)}</pre>
-            `;
-        }
+        <!-- Actions Library -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4><i class="fas fa-toolbox"></i> Actions Library</h4>
+                        <button class="btn btn-success mb-3" onclick="createNewAction()">
+                            <i class="fas fa-plus"></i> Create Custom Action
+                        </button>
+                        <div id="actions-library"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
         
-        // UI action handlers (exposed for onclick events)
-        function removeWorkflowUI(id) {
-            if (confirm('Are you sure you want to delete this workflow?')) {
-                WorkflowModule.removeWorkflow(id);
-                renderWorkflows();
-            }
-        }
-        
-        function toggleWorkflowUI(id) {
-            WorkflowModule.toggleWorkflow(id);
-            renderWorkflows();
-        }
-        
-        function selectModel(modelId) {
-            SettingsModule.saveModel(modelId);
-            showStatus('api-status', 'Model selected successfully!', 'success');
-            displayConfig();
-            
-            // Re-render models to update selection
-            LLMModule.fetchModels().then(models => renderModels(models));
-        }
-        
-        // Escape HTML to prevent XSS
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
+        <!-- Pattern Recognition -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4><i class="fas fa-code"></i> Provisioning Code Patterns</h4>
+                        <table class="table table-dark">
+                            <thead>
+                                <tr>
+                                    <th>System</th>
+                                    <th>Example</th>
+                                    <th>Regex</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>SignageOS</td>
+                                    <td><code style="color: var(--success-color);">#d362727gv</code></td>
+                                    <td><code>#\w{8,}</code></td>
+                                </tr>
+                                <tr>
+                                    <td>MQ</td>
+                                    <td><code style="color: var(--success-color);">name-1234</code></td>
+                                    <td><code>\w+-\d{4}</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Dise</td>
+                                    <td><code style="color: var(--success-color);">123-123</code></td>
+                                    <td><code>\d{3}-\d{3}</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<!-- Action Selector Modal -->
+<div id="action-selector-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; overflow-y: auto; padding: 2rem;">
+    <div class="container">
+        <div class="card" style="max-width: 800px; margin: 0 auto;">
+            <div class="card-body">
+                <h4>Select Action to Add</h4>
+                <div id="available-actions-for-workflow"></div>
+                <button class="btn btn-secondary mt-3" onclick="hideActionSelector()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Creator Modal -->
+<div id="action-creator-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; overflow-y: auto; padding: 2rem;">
+    <div class="container">
+        <div class="card" style="max-width: 800px; margin: 0 auto;">
+            <div class="card-body">
+                <h4>Create Custom Action</h4>
+                <div class="mb-3">
+                    <label class="form-label">Action Name</label>
+                    <input type="text" class="form-control" id="action-name" placeholder="Restart Player">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="action-description" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tags (comma-separated)</label>
+                    <input type="text" class="form-control" id="action-tags" placeholder="error, hardware, sony">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Trigger Type</label>
+                    <select class="form-select" id="action-trigger">
+                        <option value="contains">Text Contains</option>
+                        <option value="regex">Regex Match</option>
+                        <option value="always">Always Run</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Trigger Value</label>
+                    <input type="text" class="form-control" id="action-trigger-value">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Action Type</label>
+                    <select class="form-select" id="action-type">
+                        <option value="llm">LLM Analysis</option>
+                        <option value="extract">Extract Information</option>
+                        <option value="log">Log Result</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Custom Prompt</label>
+                    <textarea class="form-control" id="action-prompt" rows="4"></textarea>
+                </div>
+                <button class="btn btn-success" onclick="saveNewAction()">
+                    <i class="fas fa-save"></i> Save Action
+                </button>
+                <button class="btn btn-secondary" onclick="closeActionCreator()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// ==========================================
+// SETTINGS MODULE (Your working version)
+// ==========================================
+const SettingsModule = (() => {
+    const STORAGE_KEYS = {
+        API_KEY: 'visionflow_api_key',
+        MODEL: 'visionflow_model',
+        TEMPERATURE: 'visionflow_temperature',
+        MAX_TOKENS: 'visionflow_max_tokens',
+        SYSTEM_PROMPT: 'visionflow_system_prompt'
+    };
+    
+    function saveApiKey(apiKey) {
+        localStorage.setItem(STORAGE_KEYS.API_KEY, apiKey);
+    }
+    
+    function getApiKey() {
+        return localStorage.getItem(STORAGE_KEYS.API_KEY);
+    }
+    
+    function saveModel(modelId) {
+        localStorage.setItem(STORAGE_KEYS.MODEL, modelId);
+    }
+    
+    function getModel() {
+        return localStorage.getItem(STORAGE_KEYS.MODEL) || 'llama-3.3-70b-versatile';
+    }
+    
+    function saveTemperature(temp) {
+        localStorage.setItem(STORAGE_KEYS.TEMPERATURE, temp);
+    }
+    
+    function getTemperature() {
+        return parseFloat(localStorage.getItem(STORAGE_KEYS.TEMPERATURE)) || 0.7;
+    }
+    
+    function saveMaxTokens(tokens) {
+        localStorage.setItem(STORAGE_KEYS.MAX_TOKENS, tokens);
+    }
+    
+    function getMaxTokens() {
+        return parseInt(localStorage.getItem(STORAGE_KEYS.MAX_TOKENS)) || 1024;
+    }
+    
+    function saveSystemPrompt(prompt) {
+        localStorage.setItem(STORAGE_KEYS.SYSTEM_PROMPT, prompt);
+    }
+    
+    function getSystemPrompt() {
+        return localStorage.getItem(STORAGE_KEYS.SYSTEM_PROMPT) || 
+               'You are an intelligent OCR analysis assistant. Analyze the provided text and respond concisely and accurately.';
+    }
+    
+    function getAllSettings() {
         return {
-            navigateToPage,
-            showStatus,
-            updateProgress,
-            displayExtractedText,
-            displayAnalysisResults,
-            displayWorkflowResults,
-            renderWorkflows,
-            renderModels,
-            displayConfig,
-            removeWorkflowUI,
-            toggleWorkflowUI,
-            selectModel
+            apiKey: getApiKey(),
+            model: getModel(),
+            temperature: getTemperature(),
+            maxTokens: getMaxTokens(),
+            systemPrompt: getSystemPrompt()
         };
-    })();
+    }
     
-    // ==========================================
-    // MAIN MODULE - main.js
-    // Application bootstrap and event handler wiring
-    // Initializes all modules and sets up user interactions
-    // ==========================================
+    function isConfigured() {
+        return !!getApiKey();
+    }
     
-    const App = (() => {
-        
-        // Initialize application
-        function init() {
-            setupEventListeners();
-            loadInitialState();
-            console.log('VisionFlow initialized successfully');
-        }
-        
-        // Set up all event listeners
-        function setupEventListeners() {
-            // Navigation
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const page = e.currentTarget.getAttribute('data-page');
-                    UIModule.navigateToPage(page);
-                });
-            });
+    return {
+        saveApiKey, getApiKey, saveModel, getModel,
+        saveTemperature, getTemperature, saveMaxTokens, getMaxTokens,
+        saveSystemPrompt, getSystemPrompt, getAllSettings, isConfigured
+    };
+})();
+
+// ==========================================
+// OCR MODULE (Your working version)
+// ==========================================
+const OCRModule = (() => {
+    let currentImage = null;
+    let extractedText = '';
+    
+    async function extractText(imageFile, progressCallback) {
+        try {
+            currentImage = imageFile;
             
-            // Upload zone interactions
-            const uploadZone = document.getElementById('upload-zone');
-            const imageInput = document.getElementById('image-input');
-            
-            uploadZone.addEventListener('click', () => imageInput.click());
-            
-            uploadZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadZone.classList.add('dragover');
-            });
-            
-            uploadZone.addEventListener('dragleave', () => {
-                uploadZone.classList.remove('dragover');
-            });
-            
-            uploadZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadZone.classList.remove('dragover');
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    handleImageUpload(files[0]);
+            const worker = await Tesseract.createWorker('eng', 1, {
+                logger: m => {
+                    if (progressCallback && m.progress !== undefined) {
+                        progressCallback(Math.round(m.progress * 100));
+                    }
                 }
             });
             
-            imageInput.addEventListener('change', (e) => {
-                if (e.target.files.length > 0) {
-                    handleImageUpload(e.target.files[0]);
+            const { data: { text } } = await worker.recognize(imageFile);
+            await worker.terminate();
+            
+            extractedText = text.trim();
+            return extractedText;
+            
+        } catch (error) {
+            console.error('OCR extraction error:', error);
+            throw new Error('Failed to extract text from image: ' + error.message);
+        }
+    }
+    
+    function getText() {
+        return extractedText;
+    }
+    
+    function clearText() {
+        extractedText = '';
+        currentImage = null;
+    }
+    
+    function hasText() {
+        return extractedText.length > 0;
+    }
+    
+    return { extractText, getText, clearText, hasText };
+})();
+
+// ==========================================
+// LLM MODULE (Your working version)
+// ==========================================
+const LLMModule = (() => {
+    const GROQ_API_BASE = 'https://api.groq.com/openai/v1';
+    
+    async function fetchModels() {
+        const apiKey = SettingsModule.getApiKey();
+        if (!apiKey) {
+            throw new Error('API key not configured');
+        }
+        
+        try {
+            const response = await fetch(`${GROQ_API_BASE}/models`, {
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
                 }
             });
             
-            // Clear image button
-            document.getElementById('clear-image').addEventListener('click', clearImage);
+            if (!response.ok) {
+                throw new Error('Failed to fetch models');
+            }
             
-            // Extract text button
-            document.getElementById('extract-btn').addEventListener('click', extractText);
-            
-            // Analyze button
-            document.getElementById('analyze-btn').addEventListener('click', analyzeText);
-            
-            // Workflow creation
-            document.getElementById('add-workflow-btn').addEventListener('click', addWorkflow);
-            
-            // Condition type change (hide value input for 'empty' condition)
-            document.getElementById('condition-type').addEventListener('change', (e) => {
-                const valueGroup = document.getElementById('condition-value-group');
-                valueGroup.style.display = e.target.value === 'empty' ? 'none' : 'block';
-            });
-            
-            // Settings: Save API key
-            document.getElementById('save-api-key-btn').addEventListener('click', saveApiKey);
-            
-            // Settings: Test API connection
-            document.getElementById('test-api-btn').addEventListener('click', testApiConnection);
-            
-            // Settings: Fetch models
-            document.getElementById('fetch-models-btn').addEventListener('click', fetchModels);
-            
-            // Settings: Temperature slider
-            const tempSlider = document.getElementById('temperature-slider');
-            const tempValue = document.getElementById('temp-value');
-            tempSlider.addEventListener('input', (e) => {
-                tempValue.textContent = e.target.value;
-            });
-            
-            // Settings: Save settings
-            document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
+            const data = await response.json();
+            return data.data || [];
+        } catch (error) {
+            console.error('Error fetching models:', error);
+            throw error;
+        }
+    }
+    
+    async function testConnection() {
+        try {
+            await fetchModels();
+            return { success: true, message: 'API connection successful' };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    }
+    
+    async function analyzeText(text, customPrompt = null) {
+        const apiKey = SettingsModule.getApiKey();
+        if (!apiKey) {
+            throw new Error('API key not configured. Please set up your API key in Settings.');
         }
         
-        // Load initial application state
-        function loadInitialState() {
-            // Load workflows
-            UIModule.renderWorkflows();
-            
-            // Load settings into UI
-            const settings = SettingsModule.getAllSettings();
-            
-            if (settings.apiKey) {
-                document.getElementById('api-key-input').value = settings.apiKey;
-            }
-            
-            document.getElementById('temperature-slider').value = settings.temperature;
-            document.getElementById('temp-value').textContent = settings.temperature;
-            document.getElementById('max-tokens-input').value = settings.maxTokens;
-            document.getElementById('system-prompt-input').value = settings.systemPrompt;
-            
-            UIModule.displayConfig();
-        }
+        const settings = SettingsModule.getAllSettings();
+        const systemPrompt = customPrompt || settings.systemPrompt;
         
-        // Handle image upload and preview
-        function handleImageUpload(file) {
-            if (!file.type.startsWith('image/')) {
-                alert('Please upload a valid image file');
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = document.getElementById('preview-img');
-                img.src = e.target.result;
-                
-                document.getElementById('image-preview').style.display = 'block';
-                document.getElementById('extract-btn').disabled = false;
-                
-                // Clear previous results
-                OCRModule.clearText();
-                document.getElementById('extracted-text').innerHTML = 
-                    '<p class="text-muted text-center">Click "Extract Text" to begin OCR processing.</p>';
-                document.getElementById('analysis-results').innerHTML = 
-                    '<p class="text-muted text-center">Analysis results will appear here after AI processing.</p>';
-                document.getElementById('analyze-btn').disabled = true;
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        // Clear uploaded image
-        function clearImage() {
-            document.getElementById('image-preview').style.display = 'none';
-            document.getElementById('image-input').value = '';
-            document.getElementById('extract-btn').disabled = true;
-            document.getElementById('analyze-btn').disabled = true;
-            OCRModule.clearText();
-            document.getElementById('extracted-text').innerHTML = 
-                '<p class="text-muted text-center">No text extracted yet. Upload an image to begin.</p>';
-        }
-        
-        // Extract text using OCR
-        async function extractText() {
-            const fileInput = document.getElementById('image-input');
-            if (!fileInput.files[0]) return;
-            
-            const progressDiv = document.getElementById('ocr-progress');
-            const extractBtn = document.getElementById('extract-btn');
-            
-            try {
-                // Show progress bar
-                progressDiv.style.display = 'block';
-                extractBtn.disabled = true;
-                extractBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-                
-                // Extract text with progress callback
-                const text = await OCRModule.extractText(fileInput.files[0], (progress) => {
-                    UIModule.updateProgress(progress);
-                });
-                
-                // Display extracted text
-                UIModule.displayExtractedText(text);
-                
-                // Enable analyze button if text was extracted
-                if (text && text.trim()) {
-                    document.getElementById('analyze-btn').disabled = false;
-                }
-                
-            } catch (error) {
-                alert('Error extracting text: ' + error.message);
-                console.error(error);
-            } finally {
-                progressDiv.style.display = 'none';
-                extractBtn.disabled = false;
-                extractBtn.innerHTML = '<i class="fas fa-magic"></i> Extract Text (OCR)';
-            }
-        }
-        
-        // Analyze extracted text with AI
-        async function analyzeText() {
-            if (!SettingsModule.isConfigured()) {
-                alert('Please configure your Groq API key in Settings first.');
-                UIModule.navigateToPage('settings');
-                return;
-            }
-            
-            const text = OCRModule.getText();
-            if (!text) {
-                alert('No text to analyze. Please extract text first.');
-                return;
-            }
-            
-            const analyzeBtn = document.getElementById('analyze-btn');
-            
-            try {
-                analyzeBtn.disabled = true;
-                analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
-                
-                // Perform AI analysis
-                const result = await LLMModule.analyzeText(text);
-                UIModule.displayAnalysisResults(result);
-                
-                // Execute workflows
-                const workflowResults = await WorkflowModule.executeWorkflows(text);
-                UIModule.displayWorkflowResults(workflowResults);
-                
-            } catch (error) {
-                alert('Error analyzing text: ' + error.message);
-                console.error(error);
-            } finally {
-                analyzeBtn.disabled = false;
-                analyzeBtn.innerHTML = '<i class="fas fa-brain"></i> Analyze with AI';
-            }
-        }
-        
-        // Add new workflow
-        function addWorkflow() {
-            const name = document.getElementById('workflow-name').value.trim();
-            const conditionType = document.getElementById('condition-type').value;
-            const conditionValue = document.getElementById('condition-value').value.trim();
-            const actionType = document.getElementById('action-type').value;
-            const actionPrompt = document.getElementById('action-prompt').value.trim();
-            
-            if (!name) {
-                alert('Please enter a workflow name');
-                return;
-            }
-            
-            if (conditionType !== 'empty' && !conditionValue) {
-                alert('Please enter a condition value');
-                return;
-            }
-            
-            const workflow = {
-                name,
-                condition: {
-                    type: conditionType,
-                    value: conditionValue
+        try {
+            const response = await fetch(`${GROQ_API_BASE}/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
                 },
-                action: {
-                    type: actionType,
-                    customPrompt: actionPrompt || null
-                }
-            };
+                body: JSON.stringify({
+                    model: settings.model,
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: text }
+                    ],
+                    temperature: settings.temperature,
+                    max_tokens: settings.maxTokens
+                })
+            });
             
-            WorkflowModule.addWorkflow(workflow);
-            UIModule.renderWorkflows();
-            
-            // Clear form
-            document.getElementById('workflow-name').value = '';
-            document.getElementById('condition-value').value = '';
-            document.getElementById('action-prompt').value = '';
-            
-            alert('Workflow created successfully!');
-        }
-        
-        // Save API key
-        function saveApiKey() {
-            const apiKey = document.getElementById('api-key-input').value.trim();
-            
-            if (!apiKey) {
-                alert('Please enter an API key');
-                return;
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error?.message || 'API request failed');
             }
             
-            SettingsModule.saveApiKey(apiKey);
-            UIModule.showStatus('api-status', 'API key saved successfully!', 'success');
-        }
-        
-        // Test API connection
-        async function testApiConnection() {
-            const btn = document.getElementById('test-api-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+            const data = await response.json();
+            return data.choices[0].message.content;
             
-            try {
-                const result = await LLMModule.testConnection();
-                UIModule.showStatus('api-status', result.message, result.success ? 'success' : 'error');
-            } catch (error) {
-                UIModule.showStatus('api-status', 'Connection failed: ' + error.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-check-circle"></i> Test Connection';
-            }
+        } catch (error) {
+            console.error('LLM analysis error:', error);
+            throw error;
         }
-        
-        // Fetch available models
-        async function fetchModels() {
-            const btn = document.getElementById('fetch-models-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...';
-            
-            try {
-                const models = await LLMModule.fetchModels();
-                UIModule.renderModels(models);
-                UIModule.showStatus('api-status', `${models.length} models loaded successfully!`, 'success');
-            } catch (error) {
-                UIModule.showStatus('api-status', 'Failed to fetch models: ' + error.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sync"></i> Fetch Available Models';
-            }
-        }
-        
-        // Save all settings
-        function saveSettings() {
-            const temperature = parseFloat(document.getElementById('temperature-slider').value);
-            const maxTokens = parseInt(document.getElementById('max-tokens-input').value);
-            const systemPrompt = document.getElementById('system-prompt-input').value.trim();
-            
-            SettingsModule.saveTemperature(temperature);
-            SettingsModule.saveMaxTokens(maxTokens);
-            SettingsModule.saveSystemPrompt(systemPrompt);
-            
-            UIModule.displayConfig();
-            UIModule.showStatus('api-status', 'Settings saved successfully!', 'success');
-        }
-        
-        return {
-            init
-        };
-    })();
+    }
     
-    // Initialize application when DOM is ready
-    document.addEventListener('DOMContentLoaded', () => {
-        App.init();
+    return { fetchModels, testConnection, analyzeText };
+})();
+
+// ==========================================
+// ENHANCED ACTIONS & WORKFLOWS MODULE
+// ==========================================
+
+// Provisioning patterns
+const patterns = [
+    { system: 'SignageOS', regex: /#\w{8,}/, example: '#d362727gv' },
+    { system: 'MQ', regex: /\w+-\d{4}/, example: 'name-1234' },
+    { system: 'Dise', regex: /\d{3}-\d{3}/, example: '123-123' }
+];
+
+// Default master triage prompt
+const defaultTriagePrompt = `You are a master triage AI for digital signage operations. Analyze extracted text and:
+```
+
+1. Device Detection: Identify device type
+1. Content Categorization: ERROR_SCREEN, BLACK_SCREEN, PROVISIONING_SCREEN, LOG_OUTPUT, CONTENT_DISPLAY
+1. Severity: CRITICAL, HIGH, MEDIUM, LOW, INFO
+1. Recommended Actions: List which actions should trigger
+
+Format as JSON: {“device_type”: “samsung_tizen”, “category”: “ERROR_SCREEN”, “severity”: “HIGH”, “summary”: “brief”, “recommended_actions”: [“act_error_handler”]}`;
+
+```
+// Data structures
+let workflows = [];
+let actions = [];
+let currentWorkflow = null;
+let selectedActions = [];
+let extractedText = '';
+let currentImage = null;
+let currentImageFilename = '';
+
+// Initialize predefined actions
+function initializePredefinedActions() {
+    actions = [
+        {
+            id: 'act_error_handler',
+            name: 'Error Handler',
+            description: 'Analyzes errors and provides troubleshooting steps',
+            tags: ['error', 'hardware', 'software'],
+            trigger: 'contains',
+            triggerValue: 'error|exception|failed|crash',
+            type: 'llm',
+            prompt: 'Analyze this error. Identify: 1) Error type 2) Severity 3) Immediate fixes 4) Prevention'
+        },
+        {
+            id: 'act_black_screen',
+            name: 'Black Screen Diagnostics',
+            description: 'Diagnoses no signal and black screen issues',
+            tags: ['error', 'hardware', 'content'],
+            trigger: 'contains',
+            triggerValue: 'no signal|black screen|blank',
+            type: 'llm',
+            prompt: 'Diagnose black screen: Check signal, power, content failure. Provide troubleshooting steps.'
+        },
+        {
+            id: 'act_content_verify',
+            name: 'Content Verification',
+            description: 'Verifies correct content is playing',
+            tags: ['content'],
+            trigger: 'always',
+            triggerValue: '',
+            type: 'llm',
+            prompt: 'Extract content details, check quality issues, verify if content appears current or stale.'
+        },
+        {
+            id: 'act_log_analyzer',
+            name: 'Log Analyzer',
+            description: 'Parses and summarizes system logs',
+            tags: ['log', 'software'],
+            trigger: 'contains',
+            triggerValue: 'log|console|terminal|journalctl',
+            type: 'llm',
+            prompt: 'Analyze log: Extract errors/warnings, identify critical issues, suggest diagnostic commands.'
+        },
+        {
+            id: 'act_provision_extract',
+            name: 'Provisioning Code Extractor',
+            description: 'Extracts pairing codes and activation tokens',
+            tags: ['provision'],
+            trigger: 'regex',
+            triggerValue: '(#\\w{8,}|\\w+-\\d{4}|\\d{3}-\\d{3})',
+            type: 'extract',
+            prompt: 'Extract all provisioning codes, pairing tokens, device IDs, and activation URLs.'
+        },
+        {
+            id: 'act_network_check',
+            name: 'Network Diagnostics',
+            description: 'Analyzes network connectivity issues',
+            tags: ['network', 'error'],
+            trigger: 'contains',
+            triggerValue: 'network|connection|timeout|dns',
+            type: 'llm',
+            prompt: 'Analyze network issue: Identify problem type, suggest fixes.'
+        }
+    ];
+    
+    loadCustomActions();
+}
+
+// Storage functions
+function loadCustomActions() {
+    const saved = localStorage.getItem('snapocr_custom_actions');
+    if (saved) {
+        try {
+            const custom = JSON.parse(saved);
+            actions = actions.concat(custom);
+        } catch (e) {
+            console.error('Failed to load custom actions:', e);
+        }
+    }
+}
+
+function saveCustomActions() {
+    const custom = actions.filter(a => a.id.startsWith('custom_'));
+    localStorage.setItem('snapocr_custom_actions', JSON.stringify(custom));
+}
+
+function loadWorkflows() {
+    const saved = localStorage.getItem('snapocr_workflows');
+    if (saved) {
+        try {
+            workflows = JSON.parse(saved);
+        } catch (e) {
+            console.error('Failed to load workflows:', e);
+        }
+    }
+}
+
+function saveWorkflows() {
+    localStorage.setItem('snapocr_workflows', JSON.stringify(workflows));
+}
+
+// Device detection from filename
+function detectDeviceFromFilename(filename) {
+    const lower = filename.toLowerCase();
+    if (lower.includes('samsung')) return 'Samsung Tizen';
+    if (lower.includes('sony')) return 'Sony Bravia';
+    if (lower.includes('lg')) return 'LG webOS';
+    if (lower.includes('philips')) return 'Philips Android';
+    if (lower.includes('chrome')) return 'ChromeOS';
+    if (lower.includes('signageos')) return 'SignageOS';
+    return 'Unknown';
+}
+
+// Pattern detection
+function detectProvisioningCodes(text) {
+    const detected = [];
+    patterns.forEach(pattern => {
+        const matches = text.match(new RegExp(pattern.regex, 'g'));
+        if (matches) {
+            matches.forEach(match => {
+                detected.push({ system: pattern.system, code: match });
+            });
+        }
+    });
+    return detected;
+}
+
+// Master triage
+async function runMasterTriage(text) {
+    try {
+        const triagePrompt = localStorage.getItem('masterTriagePrompt') || defaultTriagePrompt;
+        const response = await LLMModule.analyzeText(text, triagePrompt);
+        
+        try {
+            return JSON.parse(response);
+        } catch {
+            return {
+                device_type: currentImageFilename ? detectDeviceType(currentImageFilename) : 'unknown',
+                category: detectCategory(text),
+                severity: detectSeverity(text),
+                summary: response.substring(0, 200),
+                recommended_actions: suggestActionsFromText(text)
+            };
+        }
+    } catch (error) {
+        console.error('Triage error:', error);
+        return {
+            device_type: currentImageFilename ? detectDeviceType(currentImageFilename) : 'unknown',
+            category: detectCategory(text),
+            severity: detectSeverity(text),
+            summary: 'Triage analysis unavailable',
+            recommended_actions: suggestActionsFromText(text)
+        };
+    }
+}
+
+function detectDeviceType(filename) {
+    const lower = filename.toLowerCase();
+    if (lower.includes('samsung')) return 'samsung_tizen';
+    if (lower.includes('sony')) return 'sony_bravia';
+    if (lower.includes('lg')) return 'lg_webos';
+    if (lower.includes('philips')) return 'philips_android';
+    if (lower.includes('chrome')) return 'chromeos';
+    return 'unknown';
+}
+
+function detectCategory(text) {
+    const lower = text.toLowerCase();
+    if (lower.includes('error') || lower.includes('exception')) return 'ERROR_SCREEN';
+    if (lower.includes('black') || lower.includes('no signal')) return 'BLACK_SCREEN';
+    if (patterns.some(p => p.regex.test(text))) return 'PROVISIONING_SCREEN';
+    if (lower.includes('log') || lower.includes('console')) return 'LOG_OUTPUT';
+    return 'CONTENT_DISPLAY';
+}
+
+function detectSeverity(text) {
+    const lower = text.toLowerCase();
+    if (lower.includes('critical') || lower.includes('fatal')) return 'CRITICAL';
+    if (lower.includes('error') || lower.includes('failed')) return 'HIGH';
+    if (lower.includes('warning')) return 'MEDIUM';
+    return 'LOW';
+}
+
+function suggestActionsFromText(text) {
+    const suggested = [];
+    const lower = text.toLowerCase();
+    
+    if (lower.includes('error') || lower.includes('exception')) suggested.push('act_error_handler');
+    if (lower.includes('network') || lower.includes('connection')) suggested.push('act_network_check');
+    if (lower.includes('black') || lower.includes('no signal')) suggested.push('act_black_screen');
+    if (lower.includes('log') || lower.includes('console')) suggested.push('act_log_analyzer');
+    if (patterns.some(p => p.regex.test(text))) suggested.push('act_provision_extract');
+    
+    return suggested.length > 0 ? suggested : ['act_content_verify'];
+}
+
+// Action execution
+async function executeAction(action, text) {
+    if (!shouldTriggerAction(action, text)) {
+        return 'Action condition not met - skipped';
+    }
+    
+    if (action.type === 'llm' || action.type === 'extract') {
+        return await LLMModule.analyzeText(text, action.prompt);
+    } else if (action.type === 'log') {
+        return `[LOG] ${new Date().toISOString()} - ${action.name}\n${text.substring(0, 200)}...`;
+    }
+    
+    return await LLMModule.analyzeText(text, action.prompt);
+}
+
+function shouldTriggerAction(action, text) {
+    if (action.trigger === 'always') return true;
+    
+    const lower = text.toLowerCase();
+    const valueLower = action.triggerValue.toLowerCase();
+    
+    switch (action.trigger) {
+        case 'contains':
+            return valueLower.split('|').some(val => lower.includes(val.trim()));
+        case 'regex':
+            try {
+                return new RegExp(action.triggerValue).test(text);
+            } catch {
+                return false;
+            }
+        default:
+            return true;
+    }
+}
+
+// ==========================================
+// UI FUNCTIONS
+// ==========================================
+
+function renderActionsList(filter = 'all', search = '') {
+    const container = document.getElementById('actions-list');
+    let filtered = actions;
+    
+    if (filter && filter !== 'all') {
+        filtered = actions.filter(a => a.tags.includes(filter));
+    }
+    
+    if (search) {
+        filtered = filtered.filter(a => 
+            a.name.toLowerCase().includes(search.toLowerCase()) ||
+            a.description.toLowerCase().includes(search.toLowerCase())
+        );
+    }
+    
+    if (filtered.length === 0) {
+        container.innerHTML = '<p class="text-center">No actions found</p>';
+        return;
+    }
+    
+    container.innerHTML = filtered.map(action => {
+        const isSelected = selectedActions.includes(action.id);
+        return `
+            <div class="action-card ${isSelected ? 'selected' : ''}" onclick="toggleActionSelection('${action.id}')">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                        <strong>${action.name}
+                            ${isSelected ? '<i class="fas fa-check-circle ms-2" style="color: var(--success-color);"></i>' : ''}
+                        </strong>
+                        <p style="margin: 0.25rem 0; color: rgba(255,255,255,0.8); font-size: 0.9rem;">${action.description}</p>
+                        <div>
+                            ${action.tags.map(tag => `<span class="tag tag-${tag}">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function toggleActionSelection(actionId) {
+    const idx = selectedActions.indexOf(actionId);
+    if (idx > -1) {
+        selectedActions.splice(idx, 1);
+    } else {
+        selectedActions.push(actionId);
+    }
+    renderActionsList(document.querySelector('.filter-chip.active').dataset.filter);
+    document.getElementById('run-actions-btn').disabled = selectedActions.length === 0;
+}
+
+function renderActionsLibrary() {
+    const container = document.getElementById('actions-library');
+    container.innerHTML = actions.map(action => {
+        const isPredefined = action.id.startsWith('act_');
+        return `
+            <div class="action-card">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                        <strong>${action.name}</strong>
+                        ${isPredefined ? '<span class="badge bg-primary ms-2" style="font-size: 0.7rem;">PRESET</span>' : '<span class="badge bg-success ms-2" style="font-size: 0.7rem;">CUSTOM</span>'}
+                        <p style="margin: 0.25rem 0;">${action.description}</p>
+                        <div>${action.tags.map(tag => `<span class="tag tag-${tag}">${tag}</span>`).join('')}</div>
+                        <small style="color: var(--text-muted);">Trigger: ${action.trigger} "${action.triggerValue}"</small>
+                    </div>
+                    ${!isPredefined ? `
+                        <div>
+                            <button class="btn btn-sm btn-danger" onclick="deleteAction('${action.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderWorkflowsSidebar() {
+    const container = document.getElementById('workflows-list-sidebar');
+    
+    if (workflows.length === 0) {
+        container.innerHTML = '<p class="text-muted text-center">No workflows yet</p>';
+        return;
+    }
+    
+    container.innerHTML = workflows.map(wf => `
+        <div class="action-card" onclick="selectWorkflow('${wf.id}')">
+            <strong>${wf.name}</strong>
+            <small style="color: var(--text-muted); display: block;">${wf.actions?.length || 0} actions</small>
+        </div>
+    `).join('');
+}
+
+function createNewWorkflow() {
+    currentWorkflow = {
+        id: 'wf_' + Date.now(),
+        name: '',
+        description: '',
+        actions: []
+    };
+    
+    document.getElementById('workflow-placeholder').style.display = 'none';
+    document.getElementById('workflow-editor').style.display = 'block';
+    
+    document.getElementById('wf-name').value = '';
+    document.getElementById('wf-description').value = '';
+    renderActionPipeline();
+}
+
+function selectWorkflow(wfId) {
+    currentWorkflow = workflows.find(w => w.id === wfId);
+    if (!currentWorkflow) return;
+    
+    document.getElementById('workflow-placeholder').style.display = 'none';
+    document.getElementById('workflow-editor').style.display = 'block';
+    
+    document.getElementById('wf-name').value = currentWorkflow.name;
+    document.getElementById('wf-description').value = currentWorkflow.description;
+    renderActionPipeline();
+}
+
+function renderActionPipeline() {
+    const container = document.getElementById('action-pipeline');
+    
+    if (!currentWorkflow || currentWorkflow.actions.length === 0) {
+        container.innerHTML = '<div class="text-muted">No actions added yet</div>';
+        return;
+    }
+    
+    const items = currentWorkflow.actions.map((actionId, idx) => {
+        const action = actions.find(a => a.id === actionId);
+        if (!action) return '';
+        
+        return `
+            <div class="pipeline-item">
+                <strong style="display: block; margin-bottom: 0.25rem;">${action.name}</strong>
+                <button class="btn btn-sm btn-danger" onclick="removeActionFromPipeline(${idx})">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            ${idx < currentWorkflow.actions.length - 1 ? '<i class="fas fa-arrow-right pipeline-arrow"></i>' : ''}
+        `;
+    }).join('');
+    
+    container.innerHTML = items;
+}
+
+function showActionSelector() {
+    const container = document.getElementById('available-actions-for-workflow');
+    container.innerHTML = actions.map(action => `
+        <div class="action-card" onclick="addActionToPipeline('${action.id}')">
+            <strong>${action.name}</strong>
+            <p style="margin: 0.25rem 0;">${action.description}</p>
+            <div>${action.tags.map(tag => `<span class="tag tag-${tag}">${tag}</span>`).join('')}</div>
+        </div>
+    `).join('');
+    
+    document.getElementById('action-selector-modal').style.display = 'block';
+}
+
+function hideActionSelector() {
+    document.getElementById('action-selector-modal').style.display = 'none';
+}
+
+function addActionToPipeline(actionId) {
+    if (!currentWorkflow.actions.includes(actionId)) {
+        currentWorkflow.actions.push(actionId);
+        renderActionPipeline();
+    }
+    hideActionSelector();
+}
+
+function removeActionFromPipeline(idx) {
+    currentWorkflow.actions.splice(idx, 1);
+    renderActionPipeline();
+}
+
+function saveCurrentWorkflow() {
+    if (!currentWorkflow) return;
+    
+    currentWorkflow.name = document.getElementById('wf-name').value;
+    currentWorkflow.description = document.getElementById('wf-description').value;
+    currentWorkflow.enableTriage = document.getElementById('wf-enable-triage').checked;
+    currentWorkflow.triagePrompt = document.getElementById('wf-triage-prompt').value;
+    
+    const existingIdx = workflows.findIndex(w => w.id === currentWorkflow.id);
+    if (existingIdx > -1) {
+        workflows[existingIdx] = currentWorkflow;
+    } else {
+        workflows.push(currentWorkflow);
+    }
+    
+    saveWorkflows();
+    renderWorkflowsSidebar();
+    alert('Workflow saved!');
+}
+
+function deleteCurrentWorkflow() {
+    if (!currentWorkflow || !confirm('Delete this workflow?')) return;
+    
+    workflows = workflows.filter(w => w.id !== currentWorkflow.id);
+    saveWorkflows();
+    renderWorkflowsSidebar();
+    
+    document.getElementById('workflow-editor').style.display = 'none';
+    document.getElementById('workflow-placeholder').style.display = 'block';
+    currentWorkflow = null;
+}
+
+function createNewAction() {
+    document.getElementById('action-creator-modal').style.display = 'block';
+    document.getElementById('action-name').value = '';
+    document.getElementById('action-description').value = '';
+    document.getElementById('action-tags').value = '';
+    document.getElementById('action-trigger-value').value = '';
+    document.getElementById('action-prompt').value = '';
+}
+
+function closeActionCreator() {
+    document.getElementById('action-creator-modal').style.display = 'none';
+}
+
+function saveNewAction() {
+    const newAction = {
+        id: 'custom_' + Date.now(),
+        name: document.getElementById('action-name').value.trim(),
+        description: document.getElementById('action-description').value.trim(),
+        tags: document.getElementById('action-tags').value.split(',').map(t => t.trim()).filter(t => t),
+        trigger: document.getElementById('action-trigger').value,
+        triggerValue: document.getElementById('action-trigger-value').value.trim(),
+        type: document.getElementById('action-type').value,
+        prompt: document.getElementById('action-prompt').value.trim()
+    };
+    
+    if (!newAction.name) {
+        alert('Please enter an action name');
+        return;
+    }
+    
+    actions.push(newAction);
+    saveCustomActions();
+    renderActionsLibrary();
+    renderActionsList();
+    closeActionCreator();
+    alert('Action created!');
+}
+
+function deleteAction(actionId) {
+    if (!confirm('Delete this action?')) return;
+    actions = actions.filter(a => a.id !== actionId);
+    saveCustomActions();
+    renderActionsLibrary();
+    renderActionsList();
+}
+
+function openSettingsModal() {
+    if (!settingsModalInstance) {
+        settingsModalInstance = new bootstrap.Modal(document.getElementById('settingsModal'));
+    }
+    settingsModalInstance.show();
+}
+
+// ==========================================
+// MAIN APPLICATION
+// ==========================================
+
+function init() {
+    setupEventListeners();
+    initializePredefinedActions();
+    loadWorkflows();
+    renderActionsList();
+    renderActionsLibrary();
+    renderWorkflowsSidebar();
+    loadSavedSettings();
+}
+
+function setupEventListeners() {
+    // Navigation
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = e.currentTarget.getAttribute('data-page');
+            navigateToPage(page);
+        });
     });
     
-    </script>
+    // Upload
+    const uploadZone = document.getElementById('upload-zone');
+    const imageInput = document.getElementById('image-input');
+    
+    uploadZone.addEventListener('click', () => imageInput.click());
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+    });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            handleImageUpload(e.dataTransfer.files[0]);
+        }
+    });
+    
+    imageInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleImageUpload(e.target.files[0]);
+        }
+    });
+    
+    document.getElementById('clear-image').addEventListener('click', clearImage);
+    document.getElementById('extract-btn').addEventListener('click', processScreenshot);
+    document.getElementById('run-actions-btn').addEventListener('click', runSelectedActions);
+    
+    // Filters
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', (e) => {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            e.target.classList.add('active');
+            renderActionsList(e.target.dataset.filter);
+        });
+    });
+    
+    document.getElementById('action-search').addEventListener('input', (e) => {
+        renderActionsList(document.querySelector('.filter-chip.active')?.dataset.filter || 'all', e.target.value);
+    });
+    
+    // Workflow triage toggle
+    document.getElementById('wf-enable-triage').addEventListener('change', (e) => {
+        document.getElementById('triage-config').style.display = e.target.checked ? 'block' : 'none';
+    });
+    
+    // Settings
+    document.getElementById('save-api-key-btn').addEventListener('click', saveApiKey);
+    document.getElementById('test-api-btn').addEventListener('click', testApiConnection);
+    document.getElementById('fetch-models-btn').addEventListener('click', fetchModels);
+    
+    const tempSlider = document.getElementById('temperature-slider');
+    tempSlider.addEventListener('input', (e) => {
+        document.getElementById('temp-value').textContent = e.target.value;
+    });
+    
+    document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
+}
+
+function navigateToPage(pageName) {
+    document.querySelectorAll('.page-content').forEach(page => page.classList.remove('active'));
+    document.getElementById(`${pageName}-page`).classList.add('active');
+    
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('data-page') === pageName) {
+            link.classList.add('active');
+        }
+    });
+}
+
+function handleImageUpload(file) {
+    if (!file.type.startsWith('image/')) {
+        alert('Please upload a valid image file');
+        return;
+    }
+    
+    currentImageFilename = file.name;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        currentImage = { data: e.target.result, filename: file.name };
+        document.getElementById('preview-img').src = currentImage.data;
+        document.getElementById('image-preview').style.display = 'block';
+        document.getElementById('extract-btn').disabled = false;
+        
+        // Clear previous results
+        OCRModule.clearText();
+        document.getElementById('extracted-text').innerHTML = '<p class="text-center">Click "Extract Text" to begin.</p>';
+        document.getElementById('triage-info').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearImage() {
+    document.getElementById('image-preview').style.display = 'none';
+    document.getElementById('image-input').value = '';
+    document.getElementById('extract-btn').disabled = false;
+    document.getElementById('triage-info').style.display = 'none';
+    document.getElementById('code-detection').style.display = 'none';
+    OCRModule.clearText();
+    
+    // Switch back to upload tab
+    new bootstrap.Tab(document.getElementById('upload-tab')).show();
+}
+
+async function processScreenshot() {
+    const fileInput = document.getElementById('image-input');
+    if (!fileInput.files[0] || !SettingsModule.isConfigured()) {
+        alert('Please configure API key in Settings first!');
+        openSettingsModal();
+        return;
+    }
+    
+    const progressDiv = document.getElementById('ocr-progress');
+    const extractBtn = document.getElementById('extract-btn');
+    
+    try {
+        progressDiv.style.display = 'block';
+        extractBtn.disabled = true;
+        extractBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+        // OCR
+        extractedText = await OCRModule.extractText(fileInput.files[0], (progress) => {
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('progress-percent').textContent = `${progress}%`;
+        });
+        
+        // Switch to extracted text tab
+        new bootstrap.Tab(document.getElementById('extracted-tab')).show();
+        
+        // Display text
+        document.getElementById('extracted-text').innerHTML = `<pre style="margin: 0;">${escapeHtml(extractedText)}</pre>`;
+        
+        // Only run triage if current workflow has it enabled
+        // For now, we don't run triage in quick mode without a workflow
+        // Detect codes
+        const codes = detectProvisioningCodes(extractedText);
+        if (codes.length > 0) {
+            displayProvisioningCodes(codes);
+            // Switch to results tab to show codes
+            new bootstrap.Tab(document.getElementById('results-tab')).show();
+        }
+        
+    } catch (error) {
+        alert('Error: ' + error.message);
+    } finally {
+        progressDiv.style.display = 'none';
+        extractBtn.disabled = false;
+        extractBtn.innerHTML = '<i class="fas fa-magic"></i> Extract Text (OCR)';
+    }
+}
+
+function displayTriageResult(result) {
+    const severityColors = {
+        CRITICAL: 'danger',
+        HIGH: 'warning',
+        MEDIUM: 'primary',
+        LOW: 'info'
+    };
+    
+    // Only show device if detected from content
+    const device = detectDeviceFromContent(extractedText);
+    if (device) {
+        document.getElementById('device-info').innerHTML = `
+            <span class="device-badge"><i class="fas fa-tv me-2"></i>${device}</span>
+            <small style="color: rgba(255,255,255,0.7);">Detected from content</small>
+        `;
+    }
+    
+    document.getElementById('category-info').innerHTML = `
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <span class="badge bg-${severityColors[result.severity] || 'secondary'}">${result.severity}</span>
+            <span class="badge bg-info">${result.category}</span>
+            <span style="color: white;">${result.summary}</span>
+        </div>
+    `;
+    
+    document.getElementById('triage-info').style.display = 'block';
+}
+
+function displayProvisioningCodes(codes) {
+    document.getElementById('detected-codes').innerHTML = codes.map(c => `
+        <div style="background: rgba(255,255,255,0.1); padding: 0.75rem; border-radius: 8px; margin-bottom: 0.5rem;">
+            <strong style="color: white;">${c.system}:</strong>
+            <code style="background: rgba(0,0,0,0.3); padding: 0.25rem 0.5rem; border-radius: 4px; color: var(--success-color); margin-left: 0.5rem;">${c.code}</code>
+            <button class="btn btn-sm btn-primary ms-2" onclick="copyToClipboard('${c.code}')">
+                <i class="fas fa-copy"></i>
+            </button>
+        </div>
+    `).join('');
+    document.getElementById('code-detection').style.display = 'block';
+}
+
+async function runSelectedActions() {
+    if (!extractedText || selectedActions.length === 0) {
+        alert('No actions selected or no text extracted!');
+        return;
+    }
+    
+    const resultsPanel = document.getElementById('analysis-results');
+    const results = [];
+    
+    // Switch to results tab
+    new bootstrap.Tab(document.getElementById('results-tab')).show();
+    
+    for (let i = 0; i < selectedActions.length; i++) {
+        const action = actions.find(a => a.id === selectedActions[i]);
+        if (!action) continue;
+        
+        resultsPanel.innerHTML = `<div style="color: white;"><i class="fas fa-spinner fa-spin me-2"></i>Running ${action.name}...</div>`;
+        
+        try {
+            const result = await executeAction(action, extractedText);
+            results.push({ action: action.name, result, success: true });
+        } catch (error) {
+            results.push({ action: action.name, result: error.message, success: false });
+        }
+    }
+    
+    displayResults(results);
+}
+
+function displayResults(results) {
+    const panel = document.getElementById('analysis-results');
+    panel.innerHTML = results.map(r => `
+        <div style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.2);">
+            <h6 style="color: ${r.success ? 'var(--success-color)' : 'var(--danger-color)'}; margin-bottom: 0.75rem;">
+                <i class="fas fa-${r.success ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${r.action}
+            </h6>
+            <pre style="white-space: pre-wrap; margin: 0;">${escapeHtml(r.result)}</pre>
+        </div>
+    `).join('');
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => alert('Copied!'));
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Settings functions (using your working code)
+function saveApiKey() {
+    const apiKey = document.getElementById('api-key-input').value.trim();
+    if (!apiKey) {
+        alert('Please enter an API key');
+        return;
+    }
+    SettingsModule.saveApiKey(apiKey);
+    showStatus('API key saved successfully!', 'success');
+}
+
+async function testApiConnection() {
+    const btn = document.getElementById('test-api-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+    
+    try {
+        const result = await LLMModule.testConnection();
+        showStatus(result.message, result.success ? 'success' : 'error');
+    } catch (error) {
+        showStatus('Connection failed: ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> Test Connection';
+    }
+}
+
+async function fetchModels() {
+    const btn = document.getElementById('fetch-models-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...';
+    
+    try {
+        const models = await LLMModule.fetchModels();
+        renderModels(models);
+        showStatus(`${models.length} models loaded successfully!`, 'success');
+    } catch (error) {
+        showStatus('Failed to fetch models: ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sync"></i> Fetch Available Models';
+    }
+}
+
+function renderModels(models) {
+    const container = document.getElementById('models-list');
+    const currentModel = SettingsModule.getModel();
+    
+    container.innerHTML = models.map(model => {
+        const isSelected = model.id === currentModel;
+        return `
+            <div class="model-card ${isSelected ? 'selected' : ''}" onclick="selectModel('${model.id}')">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong>${model.id}</strong>
+                    ${isSelected ? '<span class="badge bg-success">Active</span>' : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function selectModel(modelId) {
+    SettingsModule.saveModel(modelId);
+    showStatus('Model selected successfully!', 'success');
+    displayConfig();
+    LLMModule.fetchModels().then(models => renderModels(models));
+}
+
+function saveSettings() {
+    const temperature = parseFloat(document.getElementById('temperature-slider').value);
+    const maxTokens = parseInt(document.getElementById('max-tokens-input').value);
+    const systemPrompt = document.getElementById('system-prompt-input').value.trim();
+    
+    SettingsModule.saveTemperature(temperature);
+    SettingsModule.saveMaxTokens(maxTokens);
+    SettingsModule.saveSystemPrompt(systemPrompt);
+    
+    displayConfig();
+    showStatus('Settings saved successfully!', 'success');
+}
+
+function displayConfig() {
+    const settings = SettingsModule.getAllSettings();
+    document.getElementById('config-preview').innerHTML = `
+        <div><strong>Model:</strong> ${settings.model}</div>
+        <div><strong>Temperature:</strong> ${settings.temperature}</div>
+        <div><strong>Max Tokens:</strong> ${settings.maxTokens}</div>
+        <div class="mt-2"><strong>System Prompt:</strong></div>
+        <pre style="font-size: 0.85rem; margin: 0;">${escapeHtml(settings.systemPrompt)}</pre>
+    `;
+}
+
+function loadSavedSettings() {
+    const settings = SettingsModule.getAllSettings();
+    
+    if (settings.apiKey) {
+        document.getElementById('api-key-input').value = settings.apiKey;
+    }
+    
+    document.getElementById('temperature-slider').value = settings.temperature;
+    document.getElementById('temp-value').textContent = settings.temperature;
+    document.getElementById('max-tokens-input').value = settings.maxTokens;
+    document.getElementById('system-prompt-input').value = settings.systemPrompt;
+    
+    displayConfig();
+}
+
+function showStatus(message, type = 'info') {
+    const statusDiv = document.getElementById('api-status');
+    const alertClass = {
+        'success': 'alert-success',
+        'error': 'alert-danger',
+        'info': 'alert-info'
+    }[type] || 'alert-info';
+    
+    statusDiv.innerHTML = `
+        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', init);
+
+</script>
+```
+
+</body>
+</html>join('');
+
+```
+    container.innerHTML = items;
+}
+
+function showActionSelector() {
+    const container = document.getElementById('available-actions-for-workflow');
+    container.innerHTML = actions.map(action => `
+        <div class="action-card" onclick="addActionToPipeline('${action.id}')">
+            <strong>${action.name}</strong>
+            <p style="margin: 0.25rem 0;">${action.description}</p>
+            <div>${action.tags.map(tag => `<span class="tag tag-${tag}">${tag}</span>`).join('')}</div>
+        </div>
+    `).join('');
+    
+    document.getElementById('action-selector-modal').style.display = 'block';
+}
+
+function hideActionSelector() {
+    document.getElementById('action-selector-modal').style.display = 'none';
+}
+
+function addActionToPipeline(actionId) {
+    if (!currentWorkflow.actions.includes(actionId)) {
+        currentWorkflow.actions.push(actionId);
+        renderActionPipeline();
+    }
+    hideActionSelector();
+}
+
+function removeActionFromPipeline(idx) {
+    currentWorkflow.actions.splice(idx, 1);
+    renderActionPipeline();
+}
+
+function saveCurrentWorkflow() {
+    if (!currentWorkflow) return;
+    
+    currentWorkflow.name = document.getElementById('wf-name').value;
+    currentWorkflow.description = document.getElementById('wf-description').value;
+    
+    const existingIdx = workflows.findIndex(w => w.id === currentWorkflow.id);
+    if (existingIdx > -1) {
+        workflows[existingIdx] = currentWorkflow;
+    } else {
+        workflows.push(currentWorkflow);
+    }
+    
+    saveWorkflows();
+    renderWorkflowsSidebar();
+    alert('Workflow saved!');
+}
+
+function deleteCurrentWorkflow() {
+    if (!currentWorkflow || !confirm('Delete this workflow?')) return;
+    
+    workflows = workflows.filter(w => w.id !== currentWorkflow.id);
+    saveWorkflows();
+    renderWorkflowsSidebar();
+    
+    document.getElementById('workflow-editor').style.display = 'none';
+    document.getElementById('workflow-placeholder').style.display = 'block';
+    currentWorkflow = null;
+}
+
+function createNewAction() {
+    document.getElementById('action-creator-modal').style.display = 'block';
+    document.getElementById('action-name').value = '';
+    document.getElementById('action-description').value = '';
+    document.getElementById('action-tags').value = '';
+    document.getElementById('action-trigger-value').value = '';
+    document.getElementById('action-prompt').value = '';
+}
+
+function closeActionCreator() {
+    document.getElementById('action-creator-modal').style.display = 'none';
+}
+
+function saveNewAction() {
+    const newAction = {
+        id: 'custom_' + Date.now(),
+        name: document.getElementById('action-name').value.trim(),
+        description: document.getElementById('action-description').value.trim(),
+        tags: document.getElementById('action-tags').value.split(',').map(t => t.trim()).filter(t => t),
+        trigger: document.getElementById('action-trigger').value,
+        triggerValue: document.getElementById('action-trigger-value').value.trim(),
+        type: document.getElementById('action-type').value,
+        prompt: document.getElementById('action-prompt').value.trim()
+    };
+    
+    if (!newAction.name) {
+        alert('Please enter an action name');
+        return;
+    }
+    
+    actions.push(newAction);
+    saveCustomActions();
+    renderActionsLibrary();
+    renderActionsList();
+    closeActionCreator();
+    alert('Action created!');
+}
+
+function deleteAction(actionId) {
+    if (!confirm('Delete this action?')) return;
+    actions = actions.filter(a => a.id !== actionId);
+    saveCustomActions();
+    renderActionsLibrary();
+    renderActionsList();
+}
+
+// ==========================================
+// MAIN APPLICATION
+// ==========================================
+
+function init() {
+    setupEventListeners();
+    initializePredefinedActions();
+    loadWorkflows();
+    renderActionsList();
+    renderActionsLibrary();
+    renderWorkflowsSidebar();
+    loadSavedSettings();
+}
+
+function setupEventListeners() {
+    // Navigation
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = e.currentTarget.getAttribute('data-page');
+            navigateToPage(page);
+        });
+    });
+    
+    // Upload
+    const uploadZone = document.getElementById('upload-zone');
+    const imageInput = document.getElementById('image-input');
+    
+    uploadZone.addEventListener('click', () => imageInput.click());
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+    });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            handleImageUpload(e.dataTransfer.files[0]);
+        }
+    });
+    
+    imageInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleImageUpload(e.target.files[0]);
+        }
+    });
+    
+    document.getElementById('clear-image').addEventListener('click', clearImage);
+    document.getElementById('extract-btn').addEventListener('click', processScreenshot);
+    document.getElementById('run-actions-btn').addEventListener('click', runSelectedActions);
+    
+    // Filters
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', (e) => {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            e.target.classList.add('active');
+            renderActionsList(e.target.dataset.filter);
+        });
+    });
+    
+    document.getElementById('action-search').addEventListener('input', (e) => {
+        renderActionsList(document.querySelector('.filter-chip.active').dataset.filter, e.target.value);
+    });
+    
+    // Settings
+    document.getElementById('save-api-key-btn').addEventListener('click', saveApiKey);
+    document.getElementById('test-api-btn').addEventListener('click', testApiConnection);
+    document.getElementById('fetch-models-btn').addEventListener('click', fetchModels);
+    
+    const tempSlider = document.getElementById('temperature-slider');
+    tempSlider.addEventListener('input', (e) => {
+        document.getElementById('temp-value').textContent = e.target.value;
+    });
+    
+    document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
+}
+
+function navigateToPage(pageName) {
+    document.querySelectorAll('.page-content').forEach(page => page.classList.remove('active'));
+    document.getElementById(`${pageName}-page`).classList.add('active');
+    
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('data-page') === pageName) {
+            link.classList.add('active');
+        }
+    });
+}
+
+function handleImageUpload(file) {
+    if (!file.type.startsWith('image/')) {
+        alert('Please upload a valid image file');
+        return;
+    }
+    
+    currentImageFilename = file.name;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        currentImage = { data: e.target.result, filename: file.name };
+        document.getElementById('preview-img').src = currentImage.data;
+        document.getElementById('image-preview').style.display = 'block';
+        document.getElementById('extract-btn').disabled = false;
+        
+        // Detect device
+        const device = detectDeviceFromFilename(file.name);
+        if (device !== 'Unknown') {
+            document.getElementById('triage-info').style.display = 'block';
+            document.getElementById('device-info').innerHTML = `
+                <span class="device-badge"><i class="fas fa-tv me-2"></i>${device}</span>
+                <small style="color: rgba(255,255,255,0.7);">Auto-detected from filename</small>
+            `;
+        }
+        
+        // Clear previous results
+        OCRModule.clearText();
+        document.getElementById('extracted-text').innerHTML = '<p class="text-center">Click "Process Screenshot" to begin.</p>';
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearImage() {
+    document.getElementById('image-preview').style.display = 'none';
+    document.getElementById('image-input').value = '';
+    document.getElementById('extract-btn').disabled = true;
+    document.getElementById('triage-info').style.display = 'none';
+    OCRModule.clearText();
+}
+
+async function processScreenshot() {
+    const fileInput = document.getElementById('image-input');
+    if (!fileInput.files[0] || !SettingsModule.isConfigured()) {
+        alert('Please configure API key in Settings first!');
+        navigateToPage('settings');
+        return;
+    }
+    
+    const progressDiv = document.getElementById('ocr-progress');
+    const extractBtn = document.getElementById('extract-btn');
+    
+    try {
+        progressDiv.style.display = 'block';
+        extractBtn.disabled = true;
+        extractBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+        // OCR
+        extractedText = await OCRModule.extractText(fileInput.files[0], (progress) => {
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('progress-percent').textContent = `${progress}%`;
+        });
+        
+        // Display text
+        document.getElementById('extracted-text').innerHTML = `<pre style="margin: 0;">${escapeHtml(extractedText)}</pre>`;
+        
+        // Run master triage
+        const triageResult = await runMasterTriage(extractedText);
+        displayTriageResult(triageResult);
+        
+        // Detect codes
+        const codes = detectProvisioningCodes(extractedText);
+        if (codes.length > 0) {
+            displayProvisioningCodes(codes);
+        }
+        
+        // Auto-select actions
+        if (triageResult.recommended_actions) {
+            selectedActions = [...triageResult.recommended_actions];
+            renderActionsList(document.querySelector('.filter-chip.active').dataset.filter);
+            document.getElementById('run-actions-btn').disabled = false;
+        }
+        
+    } catch (error) {
+        alert('Error: ' + error.message);
+    } finally {
+        progressDiv.style.display = 'none';
+        extractBtn.disabled = false;
+        extractBtn.innerHTML = '<i class="fas fa-magic"></i> Process Screenshot';
+    }
+}
+
+function displayTriageResult(result) {
+    const severityColors = {
+        CRITICAL: 'danger',
+        HIGH: 'warning',
+        MEDIUM: 'primary',
+        LOW: 'info'
+    };
+    
+    document.getElementById('category-info').innerHTML = `
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <span class="badge bg-${severityColors[result.severity] || 'secondary'}">${result.severity}</span>
+            <span class="badge bg-info">${result.category}</span>
+            <span style="color: white;">${result.summary}</span>
+        </div>
+    `;
+}
+
+function displayProvisioningCodes(codes) {
+    document.getElementById('detected-codes').innerHTML = codes.map(c => `
+        <div style="background: rgba(255,255,255,0.1); padding: 0.75rem; border-radius: 8px; margin-bottom: 0.5rem;">
+            <strong style="color: white;">${c.system}:</strong>
+            <code style="background: rgba(0,0,0,0.3); padding: 0.25rem 0.5rem; border-radius: 4px; color: var(--success-color); margin-left: 0.5rem;">${c.code}</code>
+            <button class="btn btn-sm btn-primary ms-2" onclick="copyToClipboard('${c.code}')">
+                <i class="fas fa-copy"></i>
+            </button>
+        </div>
+    `).join('');
+    document.getElementById('code-detection').style.display = 'block';
+}
+
+async function runSelectedActions() {
+    if (!extractedText || selectedActions.length === 0) {
+        alert('No actions selected!');
+        return;
+    }
+    
+    const resultsPanel = document.getElementById('analysis-results');
+    const results = [];
+    
+    for (let i = 0; i < selectedActions.length; i++) {
+        const action = actions.find(a => a.id === selectedActions[i]);
+        if (!action) continue;
+        
+        resultsPanel.innerHTML = `<div style="color: white;"><i class="fas fa-spinner fa-spin me-2"></i>Running ${action.name}...</div>`;
+        
+        try {
+            const result = await executeAction(action, extractedText);
+            results.push({ action: action.name, result, success: true });
+        } catch (error) {
+            results.push({ action: action.name, result: error.message, success: false });
+        }
+    }
+    
+    displayResults(results);
+}
+
+function displayResults(results) {
+    const panel = document.getElementById('analysis-results');
+    panel.innerHTML = results.map(r => `
+        <div style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.2);">
+            <h6 style="color: ${r.success ? 'var(--success-color)' : 'var(--danger-color)'}; margin-bottom: 0.75rem;">
+                <i class="fas fa-${r.success ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${r.action}
+            </h6>
+            <pre style="white-space: pre-wrap; margin: 0;">${escapeHtml(r.result)}</pre>
+        </div>
+    `).join('');
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => alert('Copied!'));
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Settings functions (using your working code)
+function saveApiKey() {
+    const apiKey = document.getElementById('api-key-input').value.trim();
+    if (!apiKey) {
+        alert('Please enter an API key');
+        return;
+    }
+    SettingsModule.saveApiKey(apiKey);
+    showStatus('API key saved successfully!', 'success');
+}
+
+async function testApiConnection() {
+    const btn = document.getElementById('test-api-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+    
+    try {
+        const result = await LLMModule.testConnection();
+        showStatus(result.message, result.success ? 'success' : 'error');
+    } catch (error) {
+        showStatus('Connection failed: ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> Test Connection';
+    }
+}
+
+async function fetchModels() {
+    const btn = document.getElementById('fetch-models-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...';
+    
+    try {
+        const models = await LLMModule.fetchModels();
+        renderModels(models);
+        showStatus(`${models.length} models loaded successfully!`, 'success');
+    } catch (error) {
+        showStatus('Failed to fetch models: ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sync"></i> Fetch Available Models';
+    }
+}
+
+function renderModels(models) {
+    const container = document.getElementById('models-list');
+    const currentModel = SettingsModule.getModel();
+    
+    container.innerHTML = models.map(model => {
+        const isSelected = model.id === currentModel;
+        return `
+            <div class="model-card ${isSelected ? 'selected' : ''}" onclick="selectModel('${model.id}')">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong>${model.id}</strong>
+                    ${isSelected ? '<span class="badge bg-success">Active</span>' : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function selectModel(modelId) {
+    SettingsModule.saveModel(modelId);
+    showStatus('Model selected successfully!', 'success');
+    displayConfig();
+    LLMModule.fetchModels().then(models => renderModels(models));
+}
+
+function saveSettings() {
+    const temperature = parseFloat(document.getElementById('temperature-slider').value);
+    const maxTokens = parseInt(document.getElementById('max-tokens-input').value);
+    const systemPrompt = document.getElementById('system-prompt-input').value.trim();
+    
+    SettingsModule.saveTemperature(temperature);
+    SettingsModule.saveMaxTokens(maxTokens);
+    SettingsModule.saveSystemPrompt(systemPrompt);
+    
+    displayConfig();
+    showStatus('Settings saved successfully!', 'success');
+}
+
+function displayConfig() {
+    const settings = SettingsModule.getAllSettings();
+    document.getElementById('config-preview').innerHTML = `
+        <div><strong>Model:</strong> ${settings.model}</div>
+        <div><strong>Temperature:</strong> ${settings.temperature}</div>
+        <div><strong>Max Tokens:</strong> ${settings.maxTokens}</div>
+        <div class="mt-2"><strong>System Prompt:</strong></div>
+        <pre style="font-size: 0.85rem; margin: 0;">${escapeHtml(settings.systemPrompt)}</pre>
+    `;
+}
+
+function loadSavedSettings() {
+    const settings = SettingsModule.getAllSettings();
+    
+    if (settings.apiKey) {
+        document.getElementById('api-key-input').value = settings.apiKey;
+    }
+    
+    document.getElementById('temperature-slider').value = settings.temperature;
+    document.getElementById('temp-value').textContent = settings.temperature;
+    document.getElementById('max-tokens-input').value = settings.maxTokens;
+    document.getElementById('system-prompt-input').value = settings.systemPrompt;
+    
+    displayConfig();
+}
+
+function showStatus(message, type = 'info') {
+    const statusDiv = document.getElementById('api-status');
+    const alertClass = {
+        'success': 'alert-success',
+        'error': 'alert-danger',
+        'info': 'alert-info'
+    }[type] || 'alert-info';
+    
+    statusDiv.innerHTML = `
+        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', init);
+
+</script>
+```
+
 </body>
 </html>
