@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapOCR - Multimodal OCR Workflow Automation</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
+    <style>
+        :root {
+            --primary-color: #25bceb;
+            --secondary-color: #1e40af;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --dark-bg: #1e293b;
+            --card-bg: #434956;
+            --text-muted: #94a3b8;
+            --bs-secondary-color: rgb(255 255 255 / 75%);
+        }
+        
+        body {
+            background: linear-gradient(135deg, #262626 0%, #0f172a 100%);
+            color: #dfdfdf;
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .navbar {
+            background: rgba(30, 41, 59, 0.25) !important;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          	border-bottom: 1px solid #242424;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #edff00;
+        }
+        
+        .nav-link {
+            color: #cbd5e1 !important;
+            transition: color 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color) !important;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border: 1px solid #475569;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+          	color: white;
+        }
+        .card-body, .card-body h3, .card-body p {
+          color: #dfdfdf;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .upload-zone {
+            border: 2px dashed var(--primary-color);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(37, 99, 235, 0.05);
+        }
+        
+        .upload-zone:hover {
+            background: rgba(37, 99, 235, 0.1);
+            border-color: var(--success-color);
+        }
+        
+        .upload-zone.dragover {
+            background: rgba(37, 99, 235, 0.2);
+            border-color: var(--success-color);
+        }
+        
+        .btn-primary {
+            background: #181818;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background: white;
+          	color: black;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+        .btn.disabled, .btn:disabled, fieldset:disabled .btn {
+            color: var(--bs-btn-disabled-color);
+            pointer-events: none;
+            background-color: #6c6c6c;
+            border-color: #d9d9d9;
+            opacity: var(--bs-btn-disabled-opacity);
+        }
+      	.text-muted {color: white;}
+        .workflow-item {
+            background: rgba(51, 65, 85, 0.6);
+            border: 1px solid #475569;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .workflow-item:hover {
+            border-color: var(--primary-color);
+            background: rgba(51, 65, 85, 0.8);
+        }
+        
+        .result-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #475569;
+            border-radius: 8px;
+            padding: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+          	color: white;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success-color);
+        }
+        
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger-color);
+        }
+        
+        .status-processing {
+            background: rgba(37, 99, 235, 0.2);
+            color: var(--primary-color);
+        }
+        
+        .page-content {
+            display: none;
+        }
+        
+        .page-content.active {
+            display: block;
+        }
+        
+        .form-control, .form-select {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #475569;
+            color: #e2e8f0;
+            border-radius: 8px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background: rgba(15, 23, 42, 0.8);
+            border-color: var(--primary-color);
+            color: #e2e8f0;
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.6);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+        }
+        
+        .condition-action-pair {
+            background: rgba(30, 41, 59, 0.4);
+            border-left: 3px solid var(--primary-color);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 6px;
+        }
+        
+        .icon-lg {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .settings-section {
+            margin-bottom: 2rem;
+        }
+        
+        .model-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid #475569;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+          	color: white;
+        }
+        
+        .model-card:hover {
+            border-color: var(--primary-color);
+            background: rgba(30, 41, 59, 0.6);
+        }
+        
+        .model-card.selected {
+            border-color: var(--success-color);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .upload-zone {
+                padding: 2rem 1rem;
+            }
+            
+            .card {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><i class="fas fa-eye"></i> SnapOCR</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-page="home"><i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="workflows"><i class="fas fa-project-diagram"></i> Workflows</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="settings"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container-fluid py-4">
+        
+        <!-- HOME PAGE -->
+        <div id="home-page" class="page-content active">
+            <div class="row">
+                <div class="col-12 text-center mb-4">
+                    <h1 class="display-4 fw-bold">Multimodal AI - Transform screenshots into insights, automatically.</h1>
+                    <p class="lead">Upload images, extract text, and automate intelligent workflows with AI</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <!-- Upload Section -->
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title mb-4"><i class="fas fa-upload"></i> Upload Image</h3>
+                            
+                            <div id="upload-zone" class="upload-zone">
+                                <i class="fas fa-cloud-upload-alt icon-lg"></i>
+                                <h5>Click to browse img</h5>
+                                <input type="file" id="image-input" accept="image/*" style="display: none;">
+                            </div>
+                            
+                            <div id="image-preview" class="mt-3 text-center" style="display: none;">
+                                <img id="preview-img" class="img-fluid rounded" style="max-height: 300px;">
+                                <button id="clear-image" class="btn btn-danger btn-sm mt-2">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
+                            </div>
+                            
+                            <button id="extract-btn" class="btn btn-primary w-100 mt-3" disabled>
+                                <i class="fas fa-magic"></i> Extract Text (OCR)
+                            </button>
+                            
+                            <div id="ocr-progress" class="mt-3" style="display: none;">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Processing...</span>
+                                    <span id="progress-percent">0%</span>
+                                </div>
+                                <div class="progress">
+                                    <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Extracted Text Section -->
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title mb-4"><i class="fas fa-file-alt"></i> Extracted Text</h3>
+                            <div id="extracted-text" class="result-box">
+                                <p class="text-muted text-center">No text extracted yet. Upload an image to begin.</p>
+                            </div>
+                            
+                            <button id="analyze-btn" class="btn btn-primary w-100 mt-3" disabled>
+                                <i class="fas fa-brain"></i> Analyze with AI
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analysis Results -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title mb-4"><i class="fas fa-chart-line"></i> AI Analysis Results</h3>
+                            <div id="analysis-results" class="result-box">
+                                <p class="text-muted text-center">Analysis results will appear here after AI processing.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- WORKFLOWS PAGE -->
+        <div id="workflows-page" class="page-content">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <h1 class="display-5 fw-bold"><i class="fas fa-project-diagram"></i> Workflow Builder</h1>
+                    <p class="lead">Create intelligent automation rules: IF condition → THEN action</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title mb-4">Create New Workflow</h4>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Workflow Name</label>
+                                <input type="text" id="workflow-name" class="form-control" placeholder="e.g., Error Detection">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Condition Type</label>
+                                <select id="condition-type" class="form-select">
+                                    <option value="contains">Text Contains</option>
+                                    <option value="not_contains">Text Does Not Contain</option>
+                                    <option value="equals">Text Equals</option>
+                                    <option value="empty">Text is Empty</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3" id="condition-value-group">
+                                <label class="form-label">Condition Value</label>
+                                <input type="text" id="condition-value" class="form-control" placeholder="e.g., System Error">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Action Type</label>
+                                <select id="action-type" class="form-select">
+                                    <option value="summarize">Summarize Text</option>
+                                    <option value="classify">Classify Content</option>
+                                    <option value="extract">Extract Key Info</option>
+                                    <option value="suggest">Suggest Actions</option>
+                                    <option value="log">Log Result</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Custom Prompt (Optional)</label>
+                                <textarea id="action-prompt" class="form-control" rows="3" placeholder="Custom instructions for the AI..."></textarea>
+                            </div>
+                            
+                            <button id="add-workflow-btn" class="btn btn-primary w-100">
+                                <i class="fas fa-plus"></i> Add Workflow
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title mb-4">Active Workflows</h4>
+                            <div id="workflows-list">
+                                <p class="text-center">No workflows created yet. Create your first workflow to get started.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title mb-4"><i class="fas fa-play-circle"></i> Test Workflows</h4>
+                            <p class="">Workflows will automatically execute when you analyze text on the Home page.</p>
+                            <div id="workflow-execution-log" class="result-box mt-3">
+                                <p class="text-center">Workflow execution logs will appear here.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SETTINGS PAGE -->
+        <div id="settings-page" class="page-content">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <h1 class="display-5 fw-bold"><i class="fas fa-cog"></i> Settings</h1>
+                    <p class="lead">Configure your AI models and API access</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="settings-section">
+                                <h4><i class="fas fa-key"></i> API Configuration</h4>
+                                <div class="mb-3">
+                                    <label class="form-label">Groq API Key</label>
+                                    <input type="password" id="api-key-input" class="form-control" placeholder="Enter your Groq API key">
+                                    <small class="">Get your free API key from <a href="https://console.groq.com" target="_blank">console.groq.com</a></small>
+                                </div>
+                                <button id="save-api-key-btn" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save API Key
+                                </button>
+                                <button id="test-api-btn" class="btn btn-success ms-2">
+                                    <i class="fas fa-check-circle"></i> Test Connection
+                                </button>
+                                <div id="api-status" class="mt-3"></div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <div class="settings-section">
+                                <h4><i class="fas fa-robot"></i> Model Selection</h4>
+                                <button id="fetch-models-btn" class="btn btn-primary mb-3">
+                                    <i class="fas fa-sync"></i> Fetch Available Models
+                                </button>
+                                <div id="models-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="settings-section">
+                                <h4><i class="fas fa-sliders-h"></i> Model Parameters</h4>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">Temperature: <span id="temp-value">0.7</span></label>
+                                    <input type="range" class="form-range" id="temperature-slider" min="0" max="2" step="0.1" value="0.7">
+                                    <small class="text-muted">Controls randomness: 0 = focused, 2 = creative</small>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">Max Tokens</label>
+                                    <input type="number" id="max-tokens-input" class="form-control" value="1024" min="1" max="8192">
+                                    <small class="text-muted">Maximum length of AI response</small>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">System Prompt (Machine Instruction)</label>
+                                    <textarea id="system-prompt-input" class="form-control" rows="6">You are an intelligent OCR analysis assistant. Analyze the provided text and respond concisely and accurately. Focus on extracting key information, identifying patterns, and providing actionable insights.</textarea>
+                                    <small class="text-muted">Default instruction template for AI reasoning</small>
+                                </div>
+                                
+                                <button id="save-settings-btn" class="btn btn-primary w-100">
+                                    <i class="fas fa-save"></i> Save Settings
+                                </button>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <div class="settings-section">
+                                <h4><i class="fas fa-info-circle"></i> Current Configuration</h4>
+                                <div id="config-preview" class="result-box">
+                                    <p class="text-muted">Save settings to see configuration preview</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Application Modules -->
+    <script>
+    // ==========================================
+    // SETTINGS MODULE - settings.js
+    // Manages API keys, model selection, and user preferences
+    // Stores configuration in browser localStorage
+    // ==========================================
+    
+    const SettingsModule = (() => {
+        const STORAGE_KEYS = {
+            API_KEY: 'visionflow_api_key',
+            MODEL: 'visionflow_model',
+            TEMPERATURE: 'visionflow_temperature',
+            MAX_TOKENS: 'visionflow_max_tokens',
+            SYSTEM_PROMPT: 'visionflow_system_prompt'
+        };
+        
+        // Save API key to localStorage
+        function saveApiKey(apiKey) {
+            localStorage.setItem(STORAGE_KEYS.API_KEY, apiKey);
+        }
+        
+        // Retrieve API key from localStorage
+        function getApiKey() {
+            return localStorage.getItem(STORAGE_KEYS.API_KEY);
+        }
+        
+        // Save selected model
+        function saveModel(modelId) {
+            localStorage.setItem(STORAGE_KEYS.MODEL, modelId);
+        }
+        
+        // Get selected model
+        function getModel() {
+            return localStorage.getItem(STORAGE_KEYS.MODEL) || 'llama-3.3-70b-versatile';
+        }
+        
+        // Save temperature setting
+        function saveTemperature(temp) {
+            localStorage.setItem(STORAGE_KEYS.TEMPERATURE, temp);
+        }
+        
+        // Get temperature setting
+        function getTemperature() {
+            return parseFloat(localStorage.getItem(STORAGE_KEYS.TEMPERATURE)) || 0.7;
+        }
+        
+        // Save max tokens setting
+        function saveMaxTokens(tokens) {
+            localStorage.setItem(STORAGE_KEYS.MAX_TOKENS, tokens);
+        }
+        
+        // Get max tokens setting
+        function getMaxTokens() {
+            return parseInt(localStorage.getItem(STORAGE_KEYS.MAX_TOKENS)) || 1024;
+        }
+        
+        // Save system prompt
+        function saveSystemPrompt(prompt) {
+            localStorage.setItem(STORAGE_KEYS.SYSTEM_PROMPT, prompt);
+        }
+        
+        // Get system prompt
+        function getSystemPrompt() {
+            return localStorage.getItem(STORAGE_KEYS.SYSTEM_PROMPT) || 
+                   'You are an intelligent OCR analysis assistant. Analyze the provided text and respond concisely and accurately.';
+        }
+        
+        // Get all settings as object
+        function getAllSettings() {
+            return {
+                apiKey: getApiKey(),
+                model: getModel(),
+                temperature: getTemperature(),
+                maxTokens: getMaxTokens(),
+                systemPrompt: getSystemPrompt()
+            };
+        }
+        
+        // Check if API key is configured
+        function isConfigured() {
+            return !!getApiKey();
+        }
+        
+        return {
+            saveApiKey,
+            getApiKey,
+            saveModel,
+            getModel,
+            saveTemperature,
+            getTemperature,
+            saveMaxTokens,
+            getMaxTokens,
+            saveSystemPrompt,
+            getSystemPrompt,
+            getAllSettings,
+            isConfigured
+        };
+    })();
+    
+    // ==========================================
+    // OCR MODULE - ocr.js
+    // Handles image upload and text extraction using Tesseract.js v5
+    // Provides progress callbacks for UI updates
+    // ==========================================
+    
+    const OCRModule = (() => {
+        let currentImage = null;
+        let extractedText = '';
+        
+        // Process image and extract text using Tesseract.js v5
+        async function extractText(imageFile, progressCallback) {
+            try {
+                currentImage = imageFile;
+                
+                // Tesseract.js v5 simple API - create worker
+                const worker = await Tesseract.createWorker('eng', 1, {
+                    logger: m => {
+                        // Update progress bar during OCR processing
+                        if (progressCallback && m.progress !== undefined) {
+                            progressCallback(Math.round(m.progress * 100));
+                        }
+                        console.log(m); // Debug log
+                    }
+                });
+                
+                // Perform OCR on the image file directly
+                const { data: { text } } = await worker.recognize(imageFile);
+                
+                // Clean up worker
+                await worker.terminate();
+                
+                extractedText = text.trim();
+                return extractedText;
+                
+            } catch (error) {
+                console.error('OCR extraction error:', error);
+                throw new Error('Failed to extract text from image: ' + error.message);
+            }
+        }
+        
+        // Get the currently extracted text
+        function getText() {
+            return extractedText;
+        }
+        
+        // Clear extracted text
+        function clearText() {
+            extractedText = '';
+            currentImage = null;
+        }
+        
+        // Check if text has been extracted
+        function hasText() {
+            return extractedText.length > 0;
+        }
+        
+        return {
+            extractText,
+            getText,
+            clearText,
+            hasText
+        };
+    })();
+    
+    // ==========================================
+    // LLM MODULE - llm.js
+    // Manages communication with Groq Fast Inference API
+    // Handles model listing, text analysis, and reasoning tasks
+    // ==========================================
+    
+    const LLMModule = (() => {
+        const GROQ_API_BASE = 'https://api.groq.com/openai/v1';
+        
+        // Fetch available models from Groq API
+        async function fetchModels() {
+            const apiKey = SettingsModule.getApiKey();
+            if (!apiKey) {
+                throw new Error('API key not configured');
+            }
+            
+            try {
+                const response = await fetch(`${GROQ_API_BASE}/models`, {
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch models');
+                }
+                
+                const data = await response.json();
+                return data.data || [];
+            } catch (error) {
+                console.error('Error fetching models:', error);
+                throw error;
+            }
+        }
+        
+        // Test API connection
+        async function testConnection() {
+            try {
+                await fetchModels();
+                return { success: true, message: 'API connection successful' };
+            } catch (error) {
+                return { success: false, message: error.message };
+            }
+        }
+        
+        // Analyze text using Groq API with current settings
+        async function analyzeText(text, customPrompt = null) {
+            const apiKey = SettingsModule.getApiKey();
+            if (!apiKey) {
+                throw new Error('API key not configured. Please set up your API key in Settings.');
+            }
+            
+            const settings = SettingsModule.getAllSettings();
+            const systemPrompt = customPrompt || settings.systemPrompt;
+            
+            try {
+                const response = await fetch(`${GROQ_API_BASE}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: settings.model,
+                        messages: [
+                            {
+                                role: 'system',
+                                content: systemPrompt
+                            },
+                            {
+                                role: 'user',
+                                content: text
+                            }
+                        ],
+                        temperature: settings.temperature,
+                        max_tokens: settings.maxTokens
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error?.message || 'API request failed');
+                }
+                
+                const data = await response.json();
+                return data.choices[0].message.content;
+                
+            } catch (error) {
+                console.error('LLM analysis error:', error);
+                throw error;
+            }
+        }
+        
+        // Execute a specific workflow action using LLM
+        async function executeAction(actionType, text, customPrompt = null) {
+            let prompt = customPrompt;
+            
+            // Generate default prompts based on action type
+            if (!prompt) {
+                switch (actionType) {
+                    case 'summarize':
+                        prompt = 'Summarize the following text concisely, highlighting the most important points:\n\n' + text;
+                        break;
+                    case 'classify':
+                        prompt = 'Classify the following text into categories (e.g., error, warning, info, normal):\n\n' + text;
+                        break;
+                    case 'extract':
+                        prompt = 'Extract key information, entities, and data points from the following text:\n\n' + text;
+                        break;
+                    case 'suggest':
+                        prompt = 'Based on the following text, suggest appropriate actions or next steps:\n\n' + text;
+                        break;
+                    case 'log':
+                        return `[LOG] ${new Date().toISOString()} - Text logged: ${text.substring(0, 100)}...`;
+                    default:
+                        prompt = text;
+                }
+            }
+            
+            // For log actions, return immediately
+            if (actionType === 'log' && !customPrompt) {
+                return prompt;
+            }
+            
+            return await analyzeText(prompt);
+        }
+        
+        return {
+            fetchModels,
+            testConnection,
+            analyzeText,
+            executeAction
+        };
+    })();
+    
+    // ==========================================
+    // WORKFLOW MODULE - workflow.js
+    // Manages workflow creation, storage, and execution
+    // Handles condition evaluation and action chaining
+    // ==========================================
+    
+    const WorkflowModule = (() => {
+        const STORAGE_KEY = 'visionflow_workflows';
+        let workflows = [];
+        
+        // Load workflows from localStorage
+        function loadWorkflows() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            workflows = stored ? JSON.parse(stored) : [];
+            return workflows;
+        }
+        
+        // Save workflows to localStorage
+        function saveWorkflows() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(workflows));
+        }
+        
+        // Add a new workflow
+        function addWorkflow(workflow) {
+            workflow.id = Date.now().toString();
+            workflow.enabled = true;
+            workflows.push(workflow);
+            saveWorkflows();
+            return workflow;
+        }
+        
+        // Remove a workflow by ID
+        function removeWorkflow(id) {
+            workflows = workflows.filter(w => w.id !== id);
+            saveWorkflows();
+        }
+        
+        // Toggle workflow enabled/disabled
+        function toggleWorkflow(id) {
+            const workflow = workflows.find(w => w.id === id);
+            if (workflow) {
+                workflow.enabled = !workflow.enabled;
+                saveWorkflows();
+            }
+        }
+        
+        // Get all workflows
+        function getWorkflows() {
+            return workflows;
+        }
+        
+        // Evaluate if a condition matches the text
+        function evaluateCondition(condition, text) {
+            const { type, value } = condition;
+            
+            switch (type) {
+                case 'contains':
+                    return text.toLowerCase().includes(value.toLowerCase());
+                case 'not_contains':
+                    return !text.toLowerCase().includes(value.toLowerCase());
+                case 'equals':
+                    return text.trim().toLowerCase() === value.toLowerCase();
+                case 'empty':
+                    return text.trim().length === 0;
+                default:
+                    return false;
+            }
+        }
+        
+        // Execute all matching workflows on given text
+        async function executeWorkflows(text) {
+            const results = [];
+            
+            // Get only enabled workflows
+            const enabledWorkflows = workflows.filter(w => w.enabled);
+            
+            for (const workflow of enabledWorkflows) {
+                try {
+                    // Evaluate condition
+                    const conditionMet = evaluateCondition(workflow.condition, text);
+                    
+                    if (conditionMet) {
+                        // Execute action using LLM
+                        const actionResult = await LLMModule.executeAction(
+                            workflow.action.type,
+                            text,
+                            workflow.action.customPrompt || null
+                        );
+                        
+                        results.push({
+                            workflowId: workflow.id,
+                            workflowName: workflow.name,
+                            success: true,
+                            result: actionResult,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                } catch (error) {
+                    results.push({
+                        workflowId: workflow.id,
+                        workflowName: workflow.name,
+                        success: false,
+                        error: error.message,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            }
+            
+            return results;
+        }
+        
+        // Initialize: load workflows from storage
+        loadWorkflows();
+        
+        return {
+            addWorkflow,
+            removeWorkflow,
+            toggleWorkflow,
+            getWorkflows,
+            executeWorkflows,
+            loadWorkflows
+        };
+    })();
+    
+    // ==========================================
+    // UI MODULE - ui.js
+    // Manages all DOM updates, page navigation, and user interactions
+    // Provides helper functions for displaying status and results
+    // ==========================================
+    
+    const UIModule = (() => {
+        
+        // Navigate between pages (Home, Workflows, Settings)
+        function navigateToPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            const targetPage = document.getElementById(`${pageName}-page`);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+            
+            // Update nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-page') === pageName) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        // Display status message with styling
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const alertClass = {
+                'success': 'alert-success',
+                'error': 'alert-danger',
+                'warning': 'alert-warning',
+                'info': 'alert-info'
+            }[type] || 'alert-info';
+            
+            element.innerHTML = `
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+        
+        // Update OCR progress bar
+        function updateProgress(percent) {
+            const progressBar = document.getElementById('progress-bar');
+            const progressPercent = document.getElementById('progress-percent');
+            
+            if (progressBar) progressBar.style.width = `${percent}%`;
+            if (progressPercent) progressPercent.textContent = `${percent}%`;
+        }
+        
+        // Display extracted text
+        function displayExtractedText(text) {
+            const element = document.getElementById('extracted-text');
+            if (text && text.trim()) {
+                element.innerHTML = `<pre class="mb-0">${escapeHtml(text)}</pre>`;
+            } else {
+                element.innerHTML = '<p class="text-muted text-center">No text detected in the image.</p>';
+            }
+        }
+        
+        // Display AI analysis results
+        function displayAnalysisResults(result) {
+            const element = document.getElementById('analysis-results');
+            element.innerHTML = `<pre class="mb-0">${escapeHtml(result)}</pre>`;
+        }
+        
+        // Display workflow execution logs
+        function displayWorkflowResults(results) {
+            const element = document.getElementById('workflow-execution-log');
+            
+            if (!results || results.length === 0) {
+                element.innerHTML = '<p class="text-muted text-center">No workflows executed.</p>';
+                return;
+            }
+            
+            let html = '';
+            results.forEach(result => {
+                const statusClass = result.success ? 'status-success' : 'status-error';
+                const statusText = result.success ? 'Success' : 'Failed';
+                
+                html += `
+                    <div class="workflow-item">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong>${escapeHtml(result.workflowName)}</strong>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                        <small class="text-muted">${result.timestamp}</small>
+                        <div class="mt-2">
+                            ${result.success ? 
+                                `<pre class="mb-0" style="font-size: 0.85rem;">${escapeHtml(result.result)}</pre>` : 
+                                `<p class="text-danger mb-0">Error: ${escapeHtml(result.error)}</p>`
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+            
+            element.innerHTML = html;
+        }
+        
+        // Render workflows list
+        function renderWorkflows() {
+            const workflows = WorkflowModule.getWorkflows();
+            const element = document.getElementById('workflows-list');
+            
+            if (!workflows || workflows.length === 0) {
+                element.innerHTML = '<p class="text-muted text-center">No workflows created yet.</p>';
+                return;
+            }
+            
+            let html = '';
+            workflows.forEach(workflow => {
+                const conditionText = getConditionText(workflow.condition);
+                const actionText = getActionText(workflow.action);
+                
+                html += `
+                    <div class="condition-action-pair">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">${escapeHtml(workflow.name)}</h6>
+                            <div>
+                                <button class="btn btn-sm btn-outline-warning" onclick="UIModule.toggleWorkflowUI('${workflow.id}')">
+                                    <i class="fas fa-${workflow.enabled ? 'pause' : 'play'}"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="UIModule.removeWorkflowUI('${workflow.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-1">
+                            <span class="badge bg-primary">IF</span>
+                            <span class="ms-2">${conditionText}</span>
+                        </div>
+                        <div>
+                            <span class="badge bg-success">THEN</span>
+                            <span class="ms-2">${actionText}</span>
+                        </div>
+                        ${!workflow.enabled ? '<div class="mt-2"><small class="text-warning"><i class="fas fa-pause-circle"></i> Disabled</small></div>' : ''}
+                    </div>
+                `;
+            });
+            
+            element.innerHTML = html;
+        }
+        
+        // Helper to format condition for display
+        function getConditionText(condition) {
+            const typeLabels = {
+                'contains': 'Text contains',
+                'not_contains': 'Text does not contain',
+                'equals': 'Text equals',
+                'empty': 'Text is empty'
+            };
+            
+            const label = typeLabels[condition.type] || condition.type;
+            return condition.value ? `${label} "${condition.value}"` : label;
+        }
+        
+        // Helper to format action for display
+        function getActionText(action) {
+            const typeLabels = {
+                'summarize': 'Summarize text',
+                'classify': 'Classify content',
+                'extract': 'Extract key information',
+                'suggest': 'Suggest actions',
+                'log': 'Log result'
+            };
+            
+            return typeLabels[action.type] || action.type;
+        }
+        
+        // Render available models
+        function renderModels(models) {
+            const element = document.getElementById('models-list');
+            const currentModel = SettingsModule.getModel();
+            
+            if (!models || models.length === 0) {
+                element.innerHTML = '<p class="text-muted">No models available. Please check your API key.</p>';
+                return;
+            }
+            
+            let html = '';
+            models.forEach(model => {
+                const isSelected = model.id === currentModel;
+                html += `
+                    <div class="model-card ${isSelected ? 'selected' : ''}" onclick="UIModule.selectModel('${model.id}')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${model.id}</strong>
+                                ${isSelected ? '<span class="badge bg-success ms-2">Active</span>' : ''}
+                            </div>
+                            <i class="fas fa-${isSelected ? 'check-circle text-success' : 'circle'}"></i>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            element.innerHTML = html;
+        }
+        
+        // Display current configuration
+        function displayConfig() {
+            const settings = SettingsModule.getAllSettings();
+            const element = document.getElementById('config-preview');
+            
+            element.innerHTML = `
+                <div><strong>Model:</strong> ${settings.model}</div>
+                <div><strong>Temperature:</strong> ${settings.temperature}</div>
+                <div><strong>Max Tokens:</strong> ${settings.maxTokens}</div>
+                <div class="mt-2"><strong>System Prompt:</strong></div>
+                <pre class="mt-1 mb-0" style="font-size: 0.85rem;">${escapeHtml(settings.systemPrompt)}</pre>
+            `;
+        }
+        
+        // UI action handlers (exposed for onclick events)
+        function removeWorkflowUI(id) {
+            if (confirm('Are you sure you want to delete this workflow?')) {
+                WorkflowModule.removeWorkflow(id);
+                renderWorkflows();
+            }
+        }
+        
+        function toggleWorkflowUI(id) {
+            WorkflowModule.toggleWorkflow(id);
+            renderWorkflows();
+        }
+        
+        function selectModel(modelId) {
+            SettingsModule.saveModel(modelId);
+            showStatus('api-status', 'Model selected successfully!', 'success');
+            displayConfig();
+            
+            // Re-render models to update selection
+            LLMModule.fetchModels().then(models => renderModels(models));
+        }
+        
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        return {
+            navigateToPage,
+            showStatus,
+            updateProgress,
+            displayExtractedText,
+            displayAnalysisResults,
+            displayWorkflowResults,
+            renderWorkflows,
+            renderModels,
+            displayConfig,
+            removeWorkflowUI,
+            toggleWorkflowUI,
+            selectModel
+        };
+    })();
+    
+    // ==========================================
+    // MAIN MODULE - main.js
+    // Application bootstrap and event handler wiring
+    // Initializes all modules and sets up user interactions
+    // ==========================================
+    
+    const App = (() => {
+        
+        // Initialize application
+        function init() {
+            setupEventListeners();
+            loadInitialState();
+            console.log('VisionFlow initialized successfully');
+        }
+        
+        // Set up all event listeners
+        function setupEventListeners() {
+            // Navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = e.currentTarget.getAttribute('data-page');
+                    UIModule.navigateToPage(page);
+                });
+            });
+            
+            // Upload zone interactions
+            const uploadZone = document.getElementById('upload-zone');
+            const imageInput = document.getElementById('image-input');
+            
+            uploadZone.addEventListener('click', () => imageInput.click());
+            
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            });
+            
+            uploadZone.addEventListener('dragleave', () => {
+                uploadZone.classList.remove('dragover');
+            });
+            
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleImageUpload(files[0]);
+                }
+            });
+            
+            imageInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleImageUpload(e.target.files[0]);
+                }
+            });
+            
+            // Clear image button
+            document.getElementById('clear-image').addEventListener('click', clearImage);
+            
+            // Extract text button
+            document.getElementById('extract-btn').addEventListener('click', extractText);
+            
+            // Analyze button
+            document.getElementById('analyze-btn').addEventListener('click', analyzeText);
+            
+            // Workflow creation
+            document.getElementById('add-workflow-btn').addEventListener('click', addWorkflow);
+            
+            // Condition type change (hide value input for 'empty' condition)
+            document.getElementById('condition-type').addEventListener('change', (e) => {
+                const valueGroup = document.getElementById('condition-value-group');
+                valueGroup.style.display = e.target.value === 'empty' ? 'none' : 'block';
+            });
+            
+            // Settings: Save API key
+            document.getElementById('save-api-key-btn').addEventListener('click', saveApiKey);
+            
+            // Settings: Test API connection
+            document.getElementById('test-api-btn').addEventListener('click', testApiConnection);
+            
+            // Settings: Fetch models
+            document.getElementById('fetch-models-btn').addEventListener('click', fetchModels);
+            
+            // Settings: Temperature slider
+            const tempSlider = document.getElementById('temperature-slider');
+            const tempValue = document.getElementById('temp-value');
+            tempSlider.addEventListener('input', (e) => {
+                tempValue.textContent = e.target.value;
+            });
+            
+            // Settings: Save settings
+            document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
+        }
+        
+        // Load initial application state
+        function loadInitialState() {
+            // Load workflows
+            UIModule.renderWorkflows();
+            
+            // Load settings into UI
+            const settings = SettingsModule.getAllSettings();
+            
+            if (settings.apiKey) {
+                document.getElementById('api-key-input').value = settings.apiKey;
+            }
+            
+            document.getElementById('temperature-slider').value = settings.temperature;
+            document.getElementById('temp-value').textContent = settings.temperature;
+            document.getElementById('max-tokens-input').value = settings.maxTokens;
+            document.getElementById('system-prompt-input').value = settings.systemPrompt;
+            
+            UIModule.displayConfig();
+        }
+        
+        // Handle image upload and preview
+        function handleImageUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload a valid image file');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.getElementById('preview-img');
+                img.src = e.target.result;
+                
+                document.getElementById('image-preview').style.display = 'block';
+                document.getElementById('extract-btn').disabled = false;
+                
+                // Clear previous results
+                OCRModule.clearText();
+                document.getElementById('extracted-text').innerHTML = 
+                    '<p class="text-muted text-center">Click "Extract Text" to begin OCR processing.</p>';
+                document.getElementById('analysis-results').innerHTML = 
+                    '<p class="text-muted text-center">Analysis results will appear here after AI processing.</p>';
+                document.getElementById('analyze-btn').disabled = true;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Clear uploaded image
+        function clearImage() {
+            document.getElementById('image-preview').style.display = 'none';
+            document.getElementById('image-input').value = '';
+            document.getElementById('extract-btn').disabled = true;
+            document.getElementById('analyze-btn').disabled = true;
+            OCRModule.clearText();
+            document.getElementById('extracted-text').innerHTML = 
+                '<p class="text-muted text-center">No text extracted yet. Upload an image to begin.</p>';
+        }
+        
+        // Extract text using OCR
+        async function extractText() {
+            const fileInput = document.getElementById('image-input');
+            if (!fileInput.files[0]) return;
+            
+            const progressDiv = document.getElementById('ocr-progress');
+            const extractBtn = document.getElementById('extract-btn');
+            
+            try {
+                // Show progress bar
+                progressDiv.style.display = 'block';
+                extractBtn.disabled = true;
+                extractBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                
+                // Extract text with progress callback
+                const text = await OCRModule.extractText(fileInput.files[0], (progress) => {
+                    UIModule.updateProgress(progress);
+                });
+                
+                // Display extracted text
+                UIModule.displayExtractedText(text);
+                
+                // Enable analyze button if text was extracted
+                if (text && text.trim()) {
+                    document.getElementById('analyze-btn').disabled = false;
+                }
+                
+            } catch (error) {
+                alert('Error extracting text: ' + error.message);
+                console.error(error);
+            } finally {
+                progressDiv.style.display = 'none';
+                extractBtn.disabled = false;
+                extractBtn.innerHTML = '<i class="fas fa-magic"></i> Extract Text (OCR)';
+            }
+        }
+        
+        // Analyze extracted text with AI
+        async function analyzeText() {
+            if (!SettingsModule.isConfigured()) {
+                alert('Please configure your Groq API key in Settings first.');
+                UIModule.navigateToPage('settings');
+                return;
+            }
+            
+            const text = OCRModule.getText();
+            if (!text) {
+                alert('No text to analyze. Please extract text first.');
+                return;
+            }
+            
+            const analyzeBtn = document.getElementById('analyze-btn');
+            
+            try {
+                analyzeBtn.disabled = true;
+                analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+                
+                // Perform AI analysis
+                const result = await LLMModule.analyzeText(text);
+                UIModule.displayAnalysisResults(result);
+                
+                // Execute workflows
+                const workflowResults = await WorkflowModule.executeWorkflows(text);
+                UIModule.displayWorkflowResults(workflowResults);
+                
+            } catch (error) {
+                alert('Error analyzing text: ' + error.message);
+                console.error(error);
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = '<i class="fas fa-brain"></i> Analyze with AI';
+            }
+        }
+        
+        // Add new workflow
+        function addWorkflow() {
+            const name = document.getElementById('workflow-name').value.trim();
+            const conditionType = document.getElementById('condition-type').value;
+            const conditionValue = document.getElementById('condition-value').value.trim();
+            const actionType = document.getElementById('action-type').value;
+            const actionPrompt = document.getElementById('action-prompt').value.trim();
+            
+            if (!name) {
+                alert('Please enter a workflow name');
+                return;
+            }
+            
+            if (conditionType !== 'empty' && !conditionValue) {
+                alert('Please enter a condition value');
+                return;
+            }
+            
+            const workflow = {
+                name,
+                condition: {
+                    type: conditionType,
+                    value: conditionValue
+                },
+                action: {
+                    type: actionType,
+                    customPrompt: actionPrompt || null
+                }
+            };
+            
+            WorkflowModule.addWorkflow(workflow);
+            UIModule.renderWorkflows();
+            
+            // Clear form
+            document.getElementById('workflow-name').value = '';
+            document.getElementById('condition-value').value = '';
+            document.getElementById('action-prompt').value = '';
+            
+            alert('Workflow created successfully!');
+        }
+        
+        // Save API key
+        function saveApiKey() {
+            const apiKey = document.getElementById('api-key-input').value.trim();
+            
+            if (!apiKey) {
+                alert('Please enter an API key');
+                return;
+            }
+            
+            SettingsModule.saveApiKey(apiKey);
+            UIModule.showStatus('api-status', 'API key saved successfully!', 'success');
+        }
+        
+        // Test API connection
+        async function testApiConnection() {
+            const btn = document.getElementById('test-api-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+            
+            try {
+                const result = await LLMModule.testConnection();
+                UIModule.showStatus('api-status', result.message, result.success ? 'success' : 'error');
+            } catch (error) {
+                UIModule.showStatus('api-status', 'Connection failed: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Test Connection';
+            }
+        }
+        
+        // Fetch available models
+        async function fetchModels() {
+            const btn = document.getElementById('fetch-models-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...';
+            
+            try {
+                const models = await LLMModule.fetchModels();
+                UIModule.renderModels(models);
+                UIModule.showStatus('api-status', `${models.length} models loaded successfully!`, 'success');
+            } catch (error) {
+                UIModule.showStatus('api-status', 'Failed to fetch models: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync"></i> Fetch Available Models';
+            }
+        }
+        
+        // Save all settings
+        function saveSettings() {
+            const temperature = parseFloat(document.getElementById('temperature-slider').value);
+            const maxTokens = parseInt(document.getElementById('max-tokens-input').value);
+            const systemPrompt = document.getElementById('system-prompt-input').value.trim();
+            
+            SettingsModule.saveTemperature(temperature);
+            SettingsModule.saveMaxTokens(maxTokens);
+            SettingsModule.saveSystemPrompt(systemPrompt);
+            
+            UIModule.displayConfig();
+            UIModule.showStatus('api-status', 'Settings saved successfully!', 'success');
+        }
+        
+        return {
+            init
+        };
+    })();
+    
+    // Initialize application when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+        App.init();
+    });
+    
+    </script>
+</body>
+</html>
