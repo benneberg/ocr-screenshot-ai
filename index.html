@@ -50,6 +50,28 @@
         color: var(--primary-color) !important;
     }
     
+    .settings-icon {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background: var(--card-bg);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transition: all 0.3s;
+        z-index: 1000;
+    }
+    
+    .settings-icon:hover {
+        background: var(--primary-color);
+        transform: rotate(90deg);
+    }
+    
     .card {
         background: var(--card-bg);
         border: 1px solid #475569;
@@ -130,6 +152,26 @@
     .action-card.selected {
         border-left-color: var(--success-color);
         background: rgba(16, 185, 129, 0.15);
+    }
+    
+    .action-list-item {
+        padding: 0.5rem 1rem;
+        margin-bottom: 0.25rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .action-list-item:hover {
+        background: rgba(255,255,255,0.1);
+    }
+    
+    .action-list-item.selected {
+        background: rgba(16, 185, 129, 0.2);
+        font-weight: 600;
     }
     
     .tag {
@@ -287,6 +329,30 @@
         background: rgba(16, 185, 129, 0.1);
     }
     
+    .nav-tabs {
+        border: none;
+    }
+    
+    .nav-tabs .nav-link {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid #475569;
+        color: rgba(255, 255, 255, 0.7);
+        margin-right: 0.5rem;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .nav-tabs .nav-link.active {
+        background: var(--card-bg);
+        color: white;
+        border-bottom-color: var(--card-bg);
+    }
+    
+    .tab-content {
+        background: var(--card-bg);
+        border-radius: 0 8px 8px 8px;
+        padding: 1.5rem;
+    }
+    
     @media (max-width: 768px) {
         .upload-zone {
             padding: 2rem 1rem;
@@ -296,31 +362,38 @@
         }
     }
 </style>
+```
 
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#"><i class="fas fa-eye"></i> SnapOCR</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#" data-page="home"><i class="fas fa-bolt"></i> Quick Mode</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-page="workflows"><i class="fas fa-project-diagram"></i> Workflow Builder</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-page="settings"><i class="fas fa-cog"></i> Advanced Settings</a>
-                    </li>
-                </ul>
-            </div>
+    <!-- Settings Cog Icon -->
+    <div class="settings-icon" onclick="openSettingsModal()" title="Settings">
+        <i class="fas fa-cog fa-lg" style="color: white;"></i>
+    </div>
+
+```
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fas fa-eye"></i> SnapOCR</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-page="home"><i class="fas fa-bolt"></i> Quick Mode</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-page="workflows"><i class="fas fa-project-diagram"></i> Workflow Builder</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-page="tools"><i class="fas fa-toolbox"></i> Tools</a>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
 <!-- Main Container -->
 <div class="container-fluid py-4">
@@ -334,107 +407,129 @@
             </div>
         </div>
         
-        <!-- Upload Section -->
         <div class="row g-4">
+            <!-- Upload & Extract Section -->
             <div class="col-lg-6">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h3 class="card-title mb-4"><i class="fas fa-upload"></i> Upload Screenshot</h3>
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="upload-tab" data-bs-toggle="tab" href="#upload-panel">
+                                    <i class="fas fa-upload"></i> Upload Screenshot
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="extracted-tab" data-bs-toggle="tab" href="#extracted-panel">
+                                    <i class="fas fa-file-alt"></i> Extracted Text
+                                </a>
+                            </li>
+                        </ul>
                         
-                        <div id="upload-zone" class="upload-zone">
-                            <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--primary-color);"></i>
-                            <h5>Click to browse or drag & drop</h5>
-                            <small>Auto-detects device type and routes intelligently</small>
-                            <input type="file" id="image-input" accept="image/*" style="display: none;">
-                        </div>
-                        
-                        <div id="image-preview" class="mt-3 text-center" style="display: none;">
-                            <img id="preview-img" class="img-fluid rounded" style="max-height: 300px;">
-                            <button id="clear-image" class="btn btn-danger btn-sm mt-2">
-                                <i class="fas fa-times"></i> Clear
-                            </button>
-                        </div>
-                        
-                        <button id="extract-btn" class="btn btn-primary w-100 mt-3" disabled>
-                            <i class="fas fa-magic"></i> Process Screenshot
-                        </button>
-                        
-                        <div id="ocr-progress" class="mt-3" style="display: none;">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Processing...</span>
-                                <span id="progress-percent">0%</span>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="upload-panel">
+                                <div id="upload-zone" class="upload-zone mt-3">
+                                    <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--primary-color);"></i>
+                                    <h5>Click to browse or drag & drop</h5>
+                                    <small>Auto-detects device type from filename</small>
+                                    <input type="file" id="image-input" accept="image/*" style="display: none;">
+                                </div>
+                                
+                                <div id="image-preview" class="mt-3 text-center" style="display: none;">
+                                    <img id="preview-img" class="img-fluid rounded" style="max-height: 300px;">
+                                    <button id="clear-image" class="btn btn-danger btn-sm mt-2">
+                                        <i class="fas fa-times"></i> Clear
+                                    </button>
+                                </div>
+                                
+                                <button id="extract-btn" class="btn btn-primary w-100 mt-3" disabled>
+                                    <i class="fas fa-magic"></i> Extract Text (OCR)
+                                </button>
+                                
+                                <div id="ocr-progress" class="mt-3" style="display: none;">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Processing...</span>
+                                        <span id="progress-percent">0%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="progress">
-                                <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            
+                            <div class="tab-pane fade" id="extracted-panel">
+                                <div id="triage-info" style="display: none; margin-top: 1rem;">
+                                    <div class="master-triage">
+                                        <h5 style="color: white; margin-bottom: 0.5rem;">
+                                            <i class="fas fa-robot me-2"></i>Master Triage
+                                        </h5>
+                                        <div id="device-info"></div>
+                                        <div id="category-info" style="margin-top: 0.5rem;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div id="extracted-text" class="result-box mt-3">
+                                    <p class="text-center">Text will appear here after extraction.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Extracted Text -->
+            <!-- Task Runner & Results Section -->
             <div class="col-lg-6">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h3 class="card-title mb-4"><i class="fas fa-file-alt"></i> Extracted Text & Triage</h3>
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="taskrunner-tab" data-bs-toggle="tab" href="#taskrunner-panel">
+                                    <i class="fas fa-tasks"></i> Task Runner
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="results-tab" data-bs-toggle="tab" href="#results-panel">
+                                    <i class="fas fa-clipboard-list"></i> Execution Results
+                                </a>
+                            </li>
+                        </ul>
                         
-                        <div id="triage-info" style="display: none;">
-                            <div class="master-triage">
-                                <h5 style="color: white; margin-bottom: 0.5rem;">
-                                    <i class="fas fa-robot me-2"></i>Master Triage
-                                </h5>
-                                <div id="device-info"></div>
-                                <div id="category-info" style="margin-top: 0.5rem;"></div>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="taskrunner-panel">
+                                <div class="mt-3">
+                                    <h5>Filter Actions</h5>
+                                    <div class="mb-3">
+                                        <button class="filter-chip active" data-filter="all">All</button>
+                                        <button class="filter-chip" data-filter="error">Errors</button>
+                                        <button class="filter-chip" data-filter="content">Content</button>
+                                        <button class="filter-chip" data-filter="log">Logs</button>
+                                        <button class="filter-chip" data-filter="provision">Provisioning</button>
+                                        <button class="filter-chip" data-filter="network">Network</button>
+                                    </div>
+                                    <input type="text" id="action-search" class="form-control mb-3" placeholder="Search actions...">
+                                    
+                                    <div id="actions-list" style="max-height: 300px; overflow-y: auto;"></div>
+                                    
+                                    <!-- Selected Actions Detail -->
+                                    <div id="selected-actions-detail" style="margin-top: 1rem;"></div>
+                                    
+                                    <button id="run-actions-btn" class="btn btn-primary w-100 mt-3" disabled>
+                                        <i class="fas fa-play"></i> Run Selected Actions
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div id="extracted-text" class="result-box">
-                            <p class="text-center">No text extracted yet. Upload an image to begin.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Action Filter & Selection -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title mb-3"><i class="fas fa-filter"></i> Filter & Select Actions</h4>
-                        <div class="mb-3">
-                            <button class="filter-chip active" data-filter="all">All Actions</button>
-                            <button class="filter-chip" data-filter="error">Errors</button>
-                            <button class="filter-chip" data-filter="content">Content</button>
-                            <button class="filter-chip" data-filter="log">Logs</button>
-                            <button class="filter-chip" data-filter="provision">Provisioning</button>
-                            <button class="filter-chip" data-filter="network">Network</button>
-                        </div>
-                        <input type="text" id="action-search" class="form-control mb-3" placeholder="Search actions...">
-                        <div id="actions-list"></div>
-                        
-                        <button id="run-actions-btn" class="btn btn-primary w-100 mt-3" disabled>
-                            <i class="fas fa-play"></i> Run Selected Actions
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Results -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title mb-3"><i class="fas fa-clipboard-list"></i> Execution Results</h4>
-                        <div id="code-detection" style="display: none;">
-                            <div class="code-detected">
-                                <h5 style="color: white;"><i class="fas fa-key me-2"></i>Provisioning Code Detected</h5>
-                                <div id="detected-codes"></div>
+                            
+                            <div class="tab-pane fade" id="results-panel">
+                                <div id="code-detection" style="display: none; margin-top: 1rem;">
+                                    <div class="code-detected">
+                                        <h5 style="color: white;"><i class="fas fa-key me-2"></i>Provisioning Codes</h5>
+                                        <div id="detected-codes"></div>
+                                    </div>
+                                </div>
+                                
+                                <div id="analysis-results" class="result-box mt-3">
+                                    <p class="text-center">Results will appear here after execution.</p>
+                                </div>
                             </div>
-                        </div>
-                        <div id="analysis-results" class="result-box">
-                            <p class="text-center">Results will appear here after processing.</p>
                         </div>
                     </div>
                 </div>
@@ -478,6 +573,22 @@
                                     <textarea class="form-control" id="wf-description" rows="2"></textarea>
                                 </div>
                                 
+                                <!-- Master Triage Toggle -->
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="wf-enable-triage">
+                                        <label class="form-check-label" for="wf-enable-triage">
+                                            <i class="fas fa-robot me-2"></i>Enable Master Triage for this workflow
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div id="triage-config" style="display: none; margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                    <label class="form-label">Master Triage Prompt</label>
+                                    <textarea class="form-control" id="wf-triage-prompt" rows="8"></textarea>
+                                    <small class="text-muted">Configure how AI should analyze and categorize screenshots for this workflow</small>
+                                </div>
+                                
                                 <h5 class="mt-4">Actions Pipeline</h5>
                                 <div class="action-pipeline" id="action-pipeline">
                                     <div class="text-muted">No actions added yet</div>
@@ -508,78 +619,17 @@
         </div>
     </div>
     
-    <!-- SETTINGS PAGE -->
-    <div id="settings-page" class="page-content">
+    <!-- TOOLS PAGE -->
+    <div id="tools-page" class="page-content">
         <div class="row">
             <div class="col-12 mb-4">
-                <h1 class="display-5 fw-bold"><i class="fas fa-cog"></i> Advanced Settings</h1>
-                <p class="lead">Configure AI, actions library, and pattern recognition</p>
-            </div>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h4><i class="fas fa-key"></i> API Configuration</h4>
-                        <div class="mb-3">
-                            <label class="form-label">Groq API Key</label>
-                            <input type="password" id="api-key-input" class="form-control" placeholder="gsk_...">
-                            <small>Get your free API key from <a href="https://console.groq.com" target="_blank">console.groq.com</a></small>
-                        </div>
-                        <button id="save-api-key-btn" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Save API Key
-                        </button>
-                        <button id="test-api-btn" class="btn btn-success ms-2">
-                            <i class="fas fa-check-circle"></i> Test Connection
-                        </button>
-                        <div id="api-status" class="mt-3"></div>
-                        
-                        <hr class="my-4">
-                        
-                        <h4><i class="fas fa-robot"></i> Model Selection</h4>
-                        <button id="fetch-models-btn" class="btn btn-primary mb-3">
-                            <i class="fas fa-sync"></i> Fetch Available Models
-                        </button>
-                        <div id="models-list"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h4><i class="fas fa-sliders-h"></i> Model Parameters</h4>
-                        <div class="mb-4">
-                            <label class="form-label">Temperature: <span id="temp-value">0.7</span></label>
-                            <input type="range" class="form-range" id="temperature-slider" min="0" max="2" step="0.1" value="0.7">
-                            <small class="text-muted">0 = focused, 2 = creative</small>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label">Max Tokens</label>
-                            <input type="number" id="max-tokens-input" class="form-control" value="1024" min="1" max="8192">
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label">System Prompt</label>
-                            <textarea id="system-prompt-input" class="form-control" rows="4">You are an intelligent OCR analysis assistant for digital signage operations.</textarea>
-                        </div>
-                        <button id="save-settings-btn" class="btn btn-primary w-100">
-                            <i class="fas fa-save"></i> Save Settings
-                        </button>
-                        
-                        <hr class="my-4">
-                        
-                        <h5><i class="fas fa-info-circle"></i> Current Configuration</h5>
-                        <div id="config-preview" class="result-box">
-                            <p class="text-muted">Save settings to see preview</p>
-                        </div>
-                    </div>
-                </div>
+                <h1 class="display-5 fw-bold"><i class="fas fa-toolbox"></i> Tools</h1>
+                <p class="lead">Manage actions library and pattern recognition</p>
             </div>
         </div>
         
         <!-- Actions Library -->
-        <div class="row mt-4">
+        <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
@@ -616,7 +666,7 @@
                                 <tr>
                                     <td>MQ</td>
                                     <td><code style="color: var(--success-color);">name-1234</code></td>
-                                    <td><code>\w+-\d{4}</code></td>
+                                    <td><code>[a-zA-Z]+-\d{4}</code></td>
                                 </tr>
                                 <tr>
                                     <td>Dise</td>
@@ -631,6 +681,68 @@
         </div>
     </div>
     
+</div>
+
+<!-- Settings Modal -->
+<div class="modal fade" id="settingsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="background: var(--card-bg); color: white;">
+            <div class="modal-header" style="border-bottom: 1px solid #475569;">
+                <h5 class="modal-title"><i class="fas fa-cog me-2"></i>Settings</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h5><i class="fas fa-key"></i> API Configuration</h5>
+                <div class="mb-3">
+                    <label class="form-label">Groq API Key</label>
+                    <input type="password" id="api-key-input" class="form-control" placeholder="gsk_...">
+                    <small>Get your free API key from <a href="https://console.groq.com" target="_blank" style="color: var(--primary-color);">console.groq.com</a></small>
+                </div>
+                <button id="save-api-key-btn" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save API Key
+                </button>
+                <button id="test-api-btn" class="btn btn-success ms-2">
+                    <i class="fas fa-check-circle"></i> Test Connection
+                </button>
+                <div id="api-status" class="mt-3"></div>
+                
+                <hr class="my-4" style="border-color: #475569;">
+                
+                <h5><i class="fas fa-robot"></i> Model Selection</h5>
+                <button id="fetch-models-btn" class="btn btn-primary mb-3">
+                    <i class="fas fa-sync"></i> Fetch Available Models
+                </button>
+                <div id="models-list"></div>
+                
+                <hr class="my-4" style="border-color: #475569;">
+                
+                <h5><i class="fas fa-sliders-h"></i> Model Parameters</h5>
+                <div class="mb-4">
+                    <label class="form-label">Temperature: <span id="temp-value">0.7</span></label>
+                    <input type="range" class="form-range" id="temperature-slider" min="0" max="2" step="0.1" value="0.7">
+                    <small class="text-muted">0 = focused, 2 = creative</small>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Max Tokens</label>
+                    <input type="number" id="max-tokens-input" class="form-control" value="1024" min="1" max="8192">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">System Prompt</label>
+                    <textarea id="system-prompt-input" class="form-control" rows="4">You are an intelligent OCR analysis assistant for digital signage operations.</textarea>
+                </div>
+                <button id="save-settings-btn" class="btn btn-primary w-100">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+                
+                <hr class="my-4" style="border-color: #475569;">
+                
+                <h5><i class="fas fa-info-circle"></i> Current Configuration</h5>
+                <div id="config-preview" class="result-box">
+                    <p class="text-muted">Save settings to see preview</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Action Selector Modal -->
@@ -910,10 +1022,10 @@ const LLMModule = (() => {
 // ENHANCED ACTIONS & WORKFLOWS MODULE
 // ==========================================
 
-// Provisioning patterns
+// Fixed provisioning patterns
 const patterns = [
-    { system: 'SignageOS', regex: /#\w{8,}/, example: '#d362727gv' },
-    { system: 'MQ', regex: /\w+-\d{4}/, example: 'name-1234' },
+    { system: 'SignageOS', regex: /#[a-zA-Z0-9]{8,}/, example: '#d362727gv' },
+    { system: 'MQ', regex: /[a-zA-Z]+-\d{4}/, example: 'name-1234' },
     { system: 'Dise', regex: /\d{3}-\d{3}/, example: '123-123' }
 ];
 
@@ -921,7 +1033,7 @@ const patterns = [
 const defaultTriagePrompt = `You are a master triage AI for digital signage operations. Analyze extracted text and:
 ```
 
-1. Device Detection: Identify device type
+1. Device Detection: Identify device type from visible text or error messages
 1. Content Categorization: ERROR_SCREEN, BLACK_SCREEN, PROVISIONING_SCREEN, LOG_OUTPUT, CONTENT_DISPLAY
 1. Severity: CRITICAL, HIGH, MEDIUM, LOW, INFO
 1. Recommended Actions: List which actions should trigger
@@ -937,6 +1049,7 @@ let selectedActions = [];
 let extractedText = '';
 let currentImage = null;
 let currentImageFilename = '';
+let settingsModalInstance = null;
 
 // Initialize predefined actions
 function initializePredefinedActions() {
@@ -987,7 +1100,7 @@ function initializePredefinedActions() {
             description: 'Extracts pairing codes and activation tokens',
             tags: ['provision'],
             trigger: 'regex',
-            triggerValue: '(#\\w{8,}|\\w+-\\d{4}|\\d{3}-\\d{3})',
+            triggerValue: '(#[a-zA-Z0-9]{8,}|[a-zA-Z]+-\\d{4}|\\d{3}-\\d{3})',
             type: 'extract',
             prompt: 'Extract all provisioning codes, pairing tokens, device IDs, and activation URLs.'
         },
@@ -1039,19 +1152,19 @@ function saveWorkflows() {
     localStorage.setItem('snapocr_workflows', JSON.stringify(workflows));
 }
 
-// Device detection from filename
-function detectDeviceFromFilename(filename) {
-    const lower = filename.toLowerCase();
-    if (lower.includes('samsung')) return 'Samsung Tizen';
-    if (lower.includes('sony')) return 'Sony Bravia';
-    if (lower.includes('lg')) return 'LG webOS';
+// Device detection - only from actual content, not filename
+function detectDeviceFromContent(text) {
+    const lower = text.toLowerCase();
+    if (lower.includes('samsung') || lower.includes('tizen')) return 'Samsung Tizen';
+    if (lower.includes('sony') || lower.includes('bravia')) return 'Sony Bravia';
+    if (lower.includes('lg') || lower.includes('webos')) return 'LG webOS';
     if (lower.includes('philips')) return 'Philips Android';
-    if (lower.includes('chrome')) return 'ChromeOS';
+    if (lower.includes('chrome os') || lower.includes('chromeos')) return 'ChromeOS';
     if (lower.includes('signageos')) return 'SignageOS';
-    return 'Unknown';
+    return null;
 }
 
-// Pattern detection
+// Pattern detection with fixed regex
 function detectProvisioningCodes(text) {
     const detected = [];
     patterns.forEach(pattern => {
@@ -1065,17 +1178,21 @@ function detectProvisioningCodes(text) {
     return detected;
 }
 
-// Master triage
-async function runMasterTriage(text) {
+// Master triage - only run if workflow has it enabled
+async function runMasterTriage(text, workflow) {
+    if (!workflow || !workflow.enableTriage) {
+        return null;
+    }
+    
     try {
-        const triagePrompt = localStorage.getItem('masterTriagePrompt') || defaultTriagePrompt;
+        const triagePrompt = workflow.triagePrompt || defaultTriagePrompt;
         const response = await LLMModule.analyzeText(text, triagePrompt);
         
         try {
             return JSON.parse(response);
         } catch {
             return {
-                device_type: currentImageFilename ? detectDeviceType(currentImageFilename) : 'unknown',
+                device_type: detectDeviceFromContent(text) || 'unknown',
                 category: detectCategory(text),
                 severity: detectSeverity(text),
                 summary: response.substring(0, 200),
@@ -1084,24 +1201,8 @@ async function runMasterTriage(text) {
         }
     } catch (error) {
         console.error('Triage error:', error);
-        return {
-            device_type: currentImageFilename ? detectDeviceType(currentImageFilename) : 'unknown',
-            category: detectCategory(text),
-            severity: detectSeverity(text),
-            summary: 'Triage analysis unavailable',
-            recommended_actions: suggestActionsFromText(text)
-        };
+        return null;
     }
-}
-
-function detectDeviceType(filename) {
-    const lower = filename.toLowerCase();
-    if (lower.includes('samsung')) return 'samsung_tizen';
-    if (lower.includes('sony')) return 'sony_bravia';
-    if (lower.includes('lg')) return 'lg_webos';
-    if (lower.includes('philips')) return 'philips_android';
-    if (lower.includes('chrome')) return 'chromeos';
-    return 'unknown';
 }
 
 function detectCategory(text) {
@@ -1193,24 +1294,43 @@ function renderActionsList(filter = 'all', search = '') {
         return;
     }
     
+    // Render as compact list
     container.innerHTML = filtered.map(action => {
         const isSelected = selectedActions.includes(action.id);
         return `
-            <div class="action-card ${isSelected ? 'selected' : ''}" onclick="toggleActionSelection('${action.id}')">
-                <div style="display: flex; justify-content: space-between; align-items: start;">
-                    <div style="flex: 1;">
-                        <strong>${action.name}
-                            ${isSelected ? '<i class="fas fa-check-circle ms-2" style="color: var(--success-color);"></i>' : ''}
-                        </strong>
-                        <p style="margin: 0.25rem 0; color: rgba(255,255,255,0.8); font-size: 0.9rem;">${action.description}</p>
-                        <div>
-                            ${action.tags.map(tag => `<span class="tag tag-${tag}">${tag}</span>`).join('')}
-                        </div>
-                    </div>
-                </div>
+            <div class="action-list-item ${isSelected ? 'selected' : ''}" onclick="toggleActionSelection('${action.id}')">
+                <span>${action.name}</span>
+                ${isSelected ? '<i class="fas fa-check-circle" style="color: var(--success-color);"></i>' : '<i class="far fa-circle" style="color: var(--text-muted);"></i>'}
             </div>
         `;
     }).join('');
+    
+    // Show detail for selected actions
+    renderSelectedActionsDetail();
+}
+
+function renderSelectedActionsDetail() {
+    const container = document.getElementById('selected-actions-detail');
+    
+    if (selectedActions.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    container.innerHTML = `
+        <h6 class="mt-3">Selected Actions (${selectedActions.length})</h6>
+        ${selectedActions.map(actionId => {
+            const action = actions.find(a => a.id === actionId);
+            if (!action) return '';
+            return `
+                <div class="action-card selected">
+                    <strong>${action.name}</strong>
+                    <p style="margin: 0.25rem 0; font-size: 0.9rem;">${action.description}</p>
+                    <div>${action.tags.map(tag => `<span class="tag tag-${tag}">${tag}</span>`).join('')}</div>
+                </div>
+            `;
+        }).join('')}
+    `;
 }
 
 function toggleActionSelection(actionId) {
@@ -1220,7 +1340,7 @@ function toggleActionSelection(actionId) {
     } else {
         selectedActions.push(actionId);
     }
-    renderActionsList(document.querySelector('.filter-chip.active').dataset.filter);
+    renderActionsList(document.querySelector('.filter-chip.active')?.dataset.filter || 'all');
     document.getElementById('run-actions-btn').disabled = selectedActions.length === 0;
 }
 
@@ -1262,6 +1382,7 @@ function renderWorkflowsSidebar() {
     container.innerHTML = workflows.map(wf => `
         <div class="action-card" onclick="selectWorkflow('${wf.id}')">
             <strong>${wf.name}</strong>
+            ${wf.enableTriage ? '<span class="badge bg-info ms-2" style="font-size: 0.7rem;"><i class="fas fa-robot"></i> Triage</span>' : ''}
             <small style="color: var(--text-muted); display: block;">${wf.actions?.length || 0} actions</small>
         </div>
     `).join('');
@@ -1272,6 +1393,8 @@ function createNewWorkflow() {
         id: 'wf_' + Date.now(),
         name: '',
         description: '',
+        enableTriage: false,
+        triagePrompt: defaultTriagePrompt,
         actions: []
     };
     
@@ -1280,6 +1403,9 @@ function createNewWorkflow() {
     
     document.getElementById('wf-name').value = '';
     document.getElementById('wf-description').value = '';
+    document.getElementById('wf-enable-triage').checked = false;
+    document.getElementById('wf-triage-prompt').value = defaultTriagePrompt;
+    document.getElementById('triage-config').style.display = 'none';
     renderActionPipeline();
 }
 
@@ -1292,6 +1418,9 @@ function selectWorkflow(wfId) {
     
     document.getElementById('wf-name').value = currentWorkflow.name;
     document.getElementById('wf-description').value = currentWorkflow.description;
+    document.getElementById('wf-enable-triage').checked = currentWorkflow.enableTriage || false;
+    document.getElementById('wf-triage-prompt').value = currentWorkflow.triagePrompt || defaultTriagePrompt;
+    document.getElementById('triage-config').style.display = currentWorkflow.enableTriage ? 'block' : 'none';
     renderActionPipeline();
 }
 
@@ -1831,508 +1960,8 @@ function showStatus(message, type = 'info') {
 // Initialize on load
 document.addEventListener('DOMContentLoaded', init);
 
-<\/script>
-```
-
-</body>
-</html>join('');
-
-```
-    container.innerHTML = items;
-}
-
-function showActionSelector() {
-    const container = document.getElementById('available-actions-for-workflow');
-    container.innerHTML = actions.map(action => `
-        <div class="action-card" onclick="addActionToPipeline('${action.id}')">
-            <strong>${action.name}</strong>
-            <p style="margin: 0.25rem 0;">${action.description}</p>
-            <div>${action.tags.map(tag => `<span class="tag tag-${tag}">${tag}</span>`).join('')}</div>
-        </div>
-    `).join('');
-    
-    document.getElementById('action-selector-modal').style.display = 'block';
-}
-
-function hideActionSelector() {
-    document.getElementById('action-selector-modal').style.display = 'none';
-}
-
-function addActionToPipeline(actionId) {
-    if (!currentWorkflow.actions.includes(actionId)) {
-        currentWorkflow.actions.push(actionId);
-        renderActionPipeline();
-    }
-    hideActionSelector();
-}
-
-function removeActionFromPipeline(idx) {
-    currentWorkflow.actions.splice(idx, 1);
-    renderActionPipeline();
-}
-
-function saveCurrentWorkflow() {
-    if (!currentWorkflow) return;
-    
-    currentWorkflow.name = document.getElementById('wf-name').value;
-    currentWorkflow.description = document.getElementById('wf-description').value;
-    
-    const existingIdx = workflows.findIndex(w => w.id === currentWorkflow.id);
-    if (existingIdx > -1) {
-        workflows[existingIdx] = currentWorkflow;
-    } else {
-        workflows.push(currentWorkflow);
-    }
-    
-    saveWorkflows();
-    renderWorkflowsSidebar();
-    alert('Workflow saved!');
-}
-
-function deleteCurrentWorkflow() {
-    if (!currentWorkflow || !confirm('Delete this workflow?')) return;
-    
-    workflows = workflows.filter(w => w.id !== currentWorkflow.id);
-    saveWorkflows();
-    renderWorkflowsSidebar();
-    
-    document.getElementById('workflow-editor').style.display = 'none';
-    document.getElementById('workflow-placeholder').style.display = 'block';
-    currentWorkflow = null;
-}
-
-function createNewAction() {
-    document.getElementById('action-creator-modal').style.display = 'block';
-    document.getElementById('action-name').value = '';
-    document.getElementById('action-description').value = '';
-    document.getElementById('action-tags').value = '';
-    document.getElementById('action-trigger-value').value = '';
-    document.getElementById('action-prompt').value = '';
-}
-
-function closeActionCreator() {
-    document.getElementById('action-creator-modal').style.display = 'none';
-}
-
-function saveNewAction() {
-    const newAction = {
-        id: 'custom_' + Date.now(),
-        name: document.getElementById('action-name').value.trim(),
-        description: document.getElementById('action-description').value.trim(),
-        tags: document.getElementById('action-tags').value.split(',').map(t => t.trim()).filter(t => t),
-        trigger: document.getElementById('action-trigger').value,
-        triggerValue: document.getElementById('action-trigger-value').value.trim(),
-        type: document.getElementById('action-type').value,
-        prompt: document.getElementById('action-prompt').value.trim()
-    };
-    
-    if (!newAction.name) {
-        alert('Please enter an action name');
-        return;
-    }
-    
-    actions.push(newAction);
-    saveCustomActions();
-    renderActionsLibrary();
-    renderActionsList();
-    closeActionCreator();
-    alert('Action created!');
-}
-
-function deleteAction(actionId) {
-    if (!confirm('Delete this action?')) return;
-    actions = actions.filter(a => a.id !== actionId);
-    saveCustomActions();
-    renderActionsLibrary();
-    renderActionsList();
-}
-
-// ==========================================
-// MAIN APPLICATION
-// ==========================================
-
-function init() {
-    setupEventListeners();
-    initializePredefinedActions();
-    loadWorkflows();
-    renderActionsList();
-    renderActionsLibrary();
-    renderWorkflowsSidebar();
-    loadSavedSettings();
-}
-
-function setupEventListeners() {
-    // Navigation
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const page = e.currentTarget.getAttribute('data-page');
-            navigateToPage(page);
-        });
-    });
-    
-    // Upload
-    const uploadZone = document.getElementById('upload-zone');
-    const imageInput = document.getElementById('image-input');
-    
-    uploadZone.addEventListener('click', () => imageInput.click());
-    uploadZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadZone.classList.add('dragover');
-    });
-    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
-    uploadZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadZone.classList.remove('dragover');
-        if (e.dataTransfer.files.length > 0) {
-            handleImageUpload(e.dataTransfer.files[0]);
-        }
-    });
-    
-    imageInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            handleImageUpload(e.target.files[0]);
-        }
-    });
-    
-    document.getElementById('clear-image').addEventListener('click', clearImage);
-    document.getElementById('extract-btn').addEventListener('click', processScreenshot);
-    document.getElementById('run-actions-btn').addEventListener('click', runSelectedActions);
-    
-    // Filters
-    document.querySelectorAll('.filter-chip').forEach(chip => {
-        chip.addEventListener('click', (e) => {
-            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            e.target.classList.add('active');
-            renderActionsList(e.target.dataset.filter);
-        });
-    });
-    
-    document.getElementById('action-search').addEventListener('input', (e) => {
-        renderActionsList(document.querySelector('.filter-chip.active').dataset.filter, e.target.value);
-    });
-    
-    // Settings
-    document.getElementById('save-api-key-btn').addEventListener('click', saveApiKey);
-    document.getElementById('test-api-btn').addEventListener('click', testApiConnection);
-    document.getElementById('fetch-models-btn').addEventListener('click', fetchModels);
-    
-    const tempSlider = document.getElementById('temperature-slider');
-    tempSlider.addEventListener('input', (e) => {
-        document.getElementById('temp-value').textContent = e.target.value;
-    });
-    
-    document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
-}
-
-function navigateToPage(pageName) {
-    document.querySelectorAll('.page-content').forEach(page => page.classList.remove('active'));
-    document.getElementById(`${pageName}-page`).classList.add('active');
-    
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('data-page') === pageName) {
-            link.classList.add('active');
-        }
-    });
-}
-
-function handleImageUpload(file) {
-    if (!file.type.startsWith('image/')) {
-        alert('Please upload a valid image file');
-        return;
-    }
-    
-    currentImageFilename = file.name;
-    
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        currentImage = { data: e.target.result, filename: file.name };
-        document.getElementById('preview-img').src = currentImage.data;
-        document.getElementById('image-preview').style.display = 'block';
-        document.getElementById('extract-btn').disabled = false;
-        
-        // Detect device
-        const device = detectDeviceFromFilename(file.name);
-        if (device !== 'Unknown') {
-            document.getElementById('triage-info').style.display = 'block';
-            document.getElementById('device-info').innerHTML = `
-                <span class="device-badge"><i class="fas fa-tv me-2"></i>${device}</span>
-                <small style="color: rgba(255,255,255,0.7);">Auto-detected from filename</small>
-            `;
-        }
-        
-        // Clear previous results
-        OCRModule.clearText();
-        document.getElementById('extracted-text').innerHTML = '<p class="text-center">Click "Process Screenshot" to begin.</p>';
-    };
-    reader.readAsDataURL(file);
-}
-
-function clearImage() {
-    document.getElementById('image-preview').style.display = 'none';
-    document.getElementById('image-input').value = '';
-    document.getElementById('extract-btn').disabled = true;
-    document.getElementById('triage-info').style.display = 'none';
-    OCRModule.clearText();
-}
-
-async function processScreenshot() {
-    const fileInput = document.getElementById('image-input');
-    if (!fileInput.files[0] || !SettingsModule.isConfigured()) {
-        alert('Please configure API key in Settings first!');
-        navigateToPage('settings');
-        return;
-    }
-    
-    const progressDiv = document.getElementById('ocr-progress');
-    const extractBtn = document.getElementById('extract-btn');
-    
-    try {
-        progressDiv.style.display = 'block';
-        extractBtn.disabled = true;
-        extractBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-        
-        // OCR
-        extractedText = await OCRModule.extractText(fileInput.files[0], (progress) => {
-            document.getElementById('progress-bar').style.width = `${progress}%`;
-            document.getElementById('progress-percent').textContent = `${progress}%`;
-        });
-        
-        // Display text
-        document.getElementById('extracted-text').innerHTML = `<pre style="margin: 0;">${escapeHtml(extractedText)}</pre>`;
-        
-        // Run master triage
-        const triageResult = await runMasterTriage(extractedText);
-        displayTriageResult(triageResult);
-        
-        // Detect codes
-        const codes = detectProvisioningCodes(extractedText);
-        if (codes.length > 0) {
-            displayProvisioningCodes(codes);
-        }
-        
-        // Auto-select actions
-        if (triageResult.recommended_actions) {
-            selectedActions = [...triageResult.recommended_actions];
-            renderActionsList(document.querySelector('.filter-chip.active').dataset.filter);
-            document.getElementById('run-actions-btn').disabled = false;
-        }
-        
-    } catch (error) {
-        alert('Error: ' + error.message);
-    } finally {
-        progressDiv.style.display = 'none';
-        extractBtn.disabled = false;
-        extractBtn.innerHTML = '<i class="fas fa-magic"></i> Process Screenshot';
-    }
-}
-
-function displayTriageResult(result) {
-    const severityColors = {
-        CRITICAL: 'danger',
-        HIGH: 'warning',
-        MEDIUM: 'primary',
-        LOW: 'info'
-    };
-    
-    document.getElementById('category-info').innerHTML = `
-        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-            <span class="badge bg-${severityColors[result.severity] || 'secondary'}">${result.severity}</span>
-            <span class="badge bg-info">${result.category}</span>
-            <span style="color: white;">${result.summary}</span>
-        </div>
-    `;
-}
-
-function displayProvisioningCodes(codes) {
-    document.getElementById('detected-codes').innerHTML = codes.map(c => `
-        <div style="background: rgba(255,255,255,0.1); padding: 0.75rem; border-radius: 8px; margin-bottom: 0.5rem;">
-            <strong style="color: white;">${c.system}:</strong>
-            <code style="background: rgba(0,0,0,0.3); padding: 0.25rem 0.5rem; border-radius: 4px; color: var(--success-color); margin-left: 0.5rem;">${c.code}</code>
-            <button class="btn btn-sm btn-primary ms-2" onclick="copyToClipboard('${c.code}')">
-                <i class="fas fa-copy"></i>
-            </button>
-        </div>
-    `).join('');
-    document.getElementById('code-detection').style.display = 'block';
-}
-
-async function runSelectedActions() {
-    if (!extractedText || selectedActions.length === 0) {
-        alert('No actions selected!');
-        return;
-    }
-    
-    const resultsPanel = document.getElementById('analysis-results');
-    const results = [];
-    
-    for (let i = 0; i < selectedActions.length; i++) {
-        const action = actions.find(a => a.id === selectedActions[i]);
-        if (!action) continue;
-        
-        resultsPanel.innerHTML = `<div style="color: white;"><i class="fas fa-spinner fa-spin me-2"></i>Running ${action.name}...</div>`;
-        
-        try {
-            const result = await executeAction(action, extractedText);
-            results.push({ action: action.name, result, success: true });
-        } catch (error) {
-            results.push({ action: action.name, result: error.message, success: false });
-        }
-    }
-    
-    displayResults(results);
-}
-
-function displayResults(results) {
-    const panel = document.getElementById('analysis-results');
-    panel.innerHTML = results.map(r => `
-        <div style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.2);">
-            <h6 style="color: ${r.success ? 'var(--success-color)' : 'var(--danger-color)'}; margin-bottom: 0.75rem;">
-                <i class="fas fa-${r.success ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${r.action}
-            </h6>
-            <pre style="white-space: pre-wrap; margin: 0;">${escapeHtml(r.result)}</pre>
-        </div>
-    `).join('');
-}
-
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => alert('Copied!'));
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// Settings functions (using your working code)
-function saveApiKey() {
-    const apiKey = document.getElementById('api-key-input').value.trim();
-    if (!apiKey) {
-        alert('Please enter an API key');
-        return;
-    }
-    SettingsModule.saveApiKey(apiKey);
-    showStatus('API key saved successfully!', 'success');
-}
-
-async function testApiConnection() {
-    const btn = document.getElementById('test-api-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
-    
-    try {
-        const result = await LLMModule.testConnection();
-        showStatus(result.message, result.success ? 'success' : 'error');
-    } catch (error) {
-        showStatus('Connection failed: ' + error.message, 'error');
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-check-circle"></i> Test Connection';
-    }
-}
-
-async function fetchModels() {
-    const btn = document.getElementById('fetch-models-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...';
-    
-    try {
-        const models = await LLMModule.fetchModels();
-        renderModels(models);
-        showStatus(`${models.length} models loaded successfully!`, 'success');
-    } catch (error) {
-        showStatus('Failed to fetch models: ' + error.message, 'error');
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-sync"></i> Fetch Available Models';
-    }
-}
-
-function renderModels(models) {
-    const container = document.getElementById('models-list');
-    const currentModel = SettingsModule.getModel();
-    
-    container.innerHTML = models.map(model => {
-        const isSelected = model.id === currentModel;
-        return `
-            <div class="model-card ${isSelected ? 'selected' : ''}" onclick="selectModel('${model.id}')">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong>${model.id}</strong>
-                    ${isSelected ? '<span class="badge bg-success">Active</span>' : ''}
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-function selectModel(modelId) {
-    SettingsModule.saveModel(modelId);
-    showStatus('Model selected successfully!', 'success');
-    displayConfig();
-    LLMModule.fetchModels().then(models => renderModels(models));
-}
-
-function saveSettings() {
-    const temperature = parseFloat(document.getElementById('temperature-slider').value);
-    const maxTokens = parseInt(document.getElementById('max-tokens-input').value);
-    const systemPrompt = document.getElementById('system-prompt-input').value.trim();
-    
-    SettingsModule.saveTemperature(temperature);
-    SettingsModule.saveMaxTokens(maxTokens);
-    SettingsModule.saveSystemPrompt(systemPrompt);
-    
-    displayConfig();
-    showStatus('Settings saved successfully!', 'success');
-}
-
-function displayConfig() {
-    const settings = SettingsModule.getAllSettings();
-    document.getElementById('config-preview').innerHTML = `
-        <div><strong>Model:</strong> ${settings.model}</div>
-        <div><strong>Temperature:</strong> ${settings.temperature}</div>
-        <div><strong>Max Tokens:</strong> ${settings.maxTokens}</div>
-        <div class="mt-2"><strong>System Prompt:</strong></div>
-        <pre style="font-size: 0.85rem; margin: 0;">${escapeHtml(settings.systemPrompt)}</pre>
-    `;
-}
-
-function loadSavedSettings() {
-    const settings = SettingsModule.getAllSettings();
-    
-    if (settings.apiKey) {
-        document.getElementById('api-key-input').value = settings.apiKey;
-    }
-    
-    document.getElementById('temperature-slider').value = settings.temperature;
-    document.getElementById('temp-value').textContent = settings.temperature;
-    document.getElementById('max-tokens-input').value = settings.maxTokens;
-    document.getElementById('system-prompt-input').value = settings.systemPrompt;
-    
-    displayConfig();
-}
-
-function showStatus(message, type = 'info') {
-    const statusDiv = document.getElementById('api-status');
-    const alertClass = {
-        'success': 'alert-success',
-        'error': 'alert-danger',
-        'info': 'alert-info'
-    }[type] || 'alert-info';
-    
-    statusDiv.innerHTML = `
-        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-}
-
-// Initialize on load
-document.addEventListener('DOMContentLoaded', init);
-
 </script>
+```
 
 </body>
 </html>
