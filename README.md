@@ -1,4 +1,4 @@
-Here’s your updated README.md with all the new features:
+
 
 ```markdown
 # 📸 SnapOCR — Intelligent Signage Operations Platform
