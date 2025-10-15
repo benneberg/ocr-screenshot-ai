@@ -2124,6 +2124,70 @@ function showStatus(message, type = 'info') {
 // Initialize on load
 document.addEventListener('DOMContentLoaded', init);
 
+// PAGE NAVIGATION (Quick Mode, Workflow Builder, Tools)
+document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Switch nav active state
+        document.querySelectorAll('.nav-link[data-page]').forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+        // Switch page-content active state
+        document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+        const pageId = this.getAttribute('data-page') + '-page';
+        const pageEl = document.getElementById(pageId);
+        if (pageEl) pageEl.classList.add('active');
+    });
+});
+
+// UPLOAD ZONE (open file dialog on click)
+const uploadZone = document.getElementById('upload-zone') || document.getElementById('upload-zone');
+const imageInput = document.getElementById('image-input');
+if (uploadZone && imageInput) {
+    uploadZone.addEventListener('click', function() {
+        imageInput.click();
+    });
+    // Drag and drop styling
+    uploadZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+    });
+    uploadZone.addEventListener('dragleave', e => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+    });
+    uploadZone.addEventListener('drop', e => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            imageInput.files = e.dataTransfer.files;
+            imageInput.dispatchEvent(new Event('change'));
+        }
+    });
+}
+
+// IMAGE PREVIEW & CLEAR for upload
+if (imageInput) {
+    imageInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('preview-img').src = e.target.result;
+                document.getElementById('image-preview').style.display = '';
+                document.getElementById('extract-btn').disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+const clearBtn = document.getElementById('clear-image');
+if (clearBtn) {
+    clearBtn.addEventListener('click', function() {
+        imageInput.value = '';
+        document.getElementById('image-preview').style.display = 'none';
+        document.getElementById('extract-btn').disabled = true;
+    });
+}
 </script>
 
 </body>
